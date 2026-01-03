@@ -2,15 +2,17 @@
 
 Goalmoon Ctrl é um kit plugável para construir dashboards com autenticação e RBAC, compatível com Next e Vite.
 
-Pacotes:
-- @gmoonc/core
+## Pacotes reais
+- **@gmoonc/core**
 
-Instalação:
+## Instalação
+```bash
 npm i @gmoonc/core
+```
 
-Site:
-https://gmoonc.com
+## Links
+- Site: https://gmoonc.com
+- GitHub: https://github.com/gmoonc/gmoonc-packages
 
-Nota:
-Este pacote "gmoonc" é um meta package e aponta para os módulos reais em @gmoonc/*.
-
+## Nota
+O pacote "gmoonc" é um meta package e aponta para os módulos reais em @gmoonc/*.

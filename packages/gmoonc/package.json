@@ -1,6 +1,6 @@
 {
   "name": "gmoonc",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Goalmoon Ctrl (gmoonc): kit plugável de dashboard com autenticação e RBAC, compatível com Next e Vite.",
   "license": "MIT",
   "homepage": "https://gmoonc.com",
