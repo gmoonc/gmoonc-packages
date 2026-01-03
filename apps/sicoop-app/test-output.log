@@ -1,0 +1,54 @@
+
+> sicoop@0.1.0 test:notifications:process:manual:headed
+> playwright test tests/notifications/process-manual-notifications.spec.ts --project=chromium --headed
+
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] [chromium] ÔÇ║ tests\notifications\process-manual-notifications.spec.ts:5:7 ÔÇ║ Processamento Manual de Notifica├º├Áes ÔÇ║ deve processar notifica├º├Áes pendentes ao clicar no bot├úo
+[1A[2K[chromium] ÔÇ║ tests\notifications\process-manual-notifications.spec.ts:5:7 ÔÇ║ Processamento Manual de Notifica├º├Áes ÔÇ║ deve processar notifica├º├Áes pendentes ao clicar no bot├úo
+­ƒÄ» Testando processamento manual de notifica├º├Áes
+
+[1A[2K­ƒîÉ Ambiente: development
+
+[1A[2K­ƒöù URL base: http://localhost:3000
+
+[1A[2K­ƒæñ Admin: frank.borman@goalmoon.com
+
+[1A[2K­ƒöì Verificando se o servidor de desenvolvimento est├í rodando...
+
+[1A[2K  1) [chromium] ÔÇ║ tests\notifications\process-manual-notifications.spec.ts:5:7 ÔÇ║ Processamento Manual de Notifica├º├Áes ÔÇ║ deve processar notifica├º├Áes pendentes ao clicar no bot├úo 
+
+    Error: ÔØî Servidor de desenvolvimento n├úo est├í rodando em http://localhost:3000
+    ­ƒÆí Execute 'npm run dev' em outro terminal antes de rodar este teste.
+
+      128 |           const rootCheck = await fetch(baseUrl).catch(() => null);
+      129 |           if (!rootCheck || !rootCheck.ok) {
+    > 130 |             throw new Error(
+          |                   ^
+      131 |               `ÔØî Servidor de desenvolvimento n├úo est├í rodando em ${baseUrl}\n` +
+      132 |               `­ƒÆí Execute 'npm run dev' em outro terminal antes de rodar este teste.`
+      133 |             );
+        at C:\Users\almme\Documents\Github\sicoop-goalmoon-suite\tests\notifications\process-manual-notifications.spec.ts:130:19
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\notifications-process-manu-e331e-endentes-ao-clicar-no-bot├úo-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\notifications-process-manu-e331e-endentes-ao-clicar-no-bot├úo-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #3: trace (application/zip) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\notifications-process-manu-e331e-endentes-ao-clicar-no-bot├úo-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\notifications-process-manu-e331e-endentes-ao-clicar-no-bot├úo-chromium\trace.zip
+
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K  1 failed
+    [chromium] ÔÇ║ tests\notifications\process-manual-notifications.spec.ts:5:7 ÔÇ║ Processamento Manual de Notifica├º├Áes ÔÇ║ deve processar notifica├º├Áes pendentes ao clicar no bot├úo 
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m

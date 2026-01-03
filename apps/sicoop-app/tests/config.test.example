@@ -1,0 +1,86 @@
+# 🔐 Credenciais de Testes Semi-Automatizados
+# ⚠️ Copie este arquivo para config.test e preencha com os valores reais
+
+# 👤 USUÁRIO DO TESTE ATUAL
+# O usuário selecionado para o teste atual
+ACTUAL_TEST_USER=01
+
+# 👤 USUÁRIO SECUNDÁRIO PARA O TESTE ATUAL (PARA TESTES QUE REQUIREM DOIS USUÁRIOS)
+# O usuário secundário é usado para testar as funcionalidades que requerem dois usuários
+ACTUAL_TEST_SECOND_USER=02
+
+# 👤 USUÁRIO ADMINISTRADOR NO TESTE ATUAL
+# O usuário administrador é usado para testar as funcionalidades de administração
+# Usado por: create-category.spec.ts, create-setting.spec.ts, create-technical-message.spec.ts
+TEST_ADMIN_USER=02
+
+# 🔗 LINK TEMPORÁRIO (Confirmação ou Reset)
+# Este link é usado temporariamente e é substituído após cada uso
+TEMPORARY_LINK=[link_temporario_colado_aqui]
+
+# 🔗 LINK DE TROCA DE EMAIL TEMPORÁRIO DO USUÁRIO SECUNDÁRIO
+# Este link é usado temporariamente e é substituído após cada uso
+TEMPORARY_SECOND_USER_LINK=[link_temporario_colado_aqui]
+
+# 🌐 Configurações Globais
+TEST_BASE_URL=https://seusite.com
+
+# 🌐 Ambiente de Desenvolvimento
+TEST_DEV_URL=http://localhost:3000
+
+# 🌐 Ambiente Atual (development ou production)
+TEST_ENVIRONMENT=development
+
+# 📝 EXEMPLO DE USUÁRIO 1
+TEST_USER_01_EMAIL=email01@example.com
+TEST_USER_01_CURRENT_PASSWORD=[senha_atual]
+TEST_USER_01_NEXT_PASSWORD=[proxima_senha_para_usar]
+
+# 📝 EXEMPLO DE USUÁRIO 2
+TEST_USER_02_EMAIL=email02@example.com
+TEST_USER_02_CURRENT_PASSWORD=[senha_atual]
+TEST_USER_02_NEXT_PASSWORD=[proxima_senha_para_usar]
+
+# 📝 EXEMPLO DE USUÁRIO 3
+TEST_USER_03_EMAIL=email03@example.com
+TEST_USER_03_CURRENT_PASSWORD=[senha_atual]
+TEST_USER_03_NEXT_PASSWORD=[proxima_senha_para_usar]
+
+# 📝 EXEMPLO DE USUÁRIO 4
+TEST_USER_04_EMAIL=email04@example.com
+TEST_USER_04_CURRENT_PASSWORD=[senha_atual]
+TEST_USER_04_NEXT_PASSWORD=[proxima_senha_para_usar]    
+
+# 📝 EXEMPLO DE USUÁRIO 5
+TEST_USER_05_EMAIL=email05@example.com
+TEST_USER_05_CURRENT_PASSWORD=[senha_atual]
+TEST_USER_05_NEXT_PASSWORD=[proxima_senha_para_usar]
+
+# 🔔 CONFIGURAÇÃO DE CATEGORIA DE NOTIFICAÇÃO - MENSAGENS (para testes de notificações)
+# Usado por: create-category-messages.spec.ts, create-setting-messages.spec.ts
+# Display Name da categoria (o sistema gera automaticamente o "name" a partir deste)
+NOTIFICATION_CATEGORY_DISPLAY_NAME=Novas Mensagens
+
+# Descrição da categoria
+NOTIFICATION_CATEGORY_DESCRIPTION=Notificação quando uma nova mensagem é recebida no sistema
+
+# Assunto do email
+NOTIFICATION_CATEGORY_SUBJECT=Nova mensagem recebida - Sicoop
+
+# Corpo do email (use \n para quebras de linha e {{variavel}} para variáveis dinâmicas)
+NOTIFICATION_CATEGORY_BODY=Você recebeu uma nova mensagem no sistema Sicoop.\n\n**Detalhes:**\n• Nome: {{nome}}\n• Email: {{email}}\n• Empresa/Fazenda: {{empresa_fazenda}}\n• Mensagem: {{mensagem}}\n\nAcesse o sistema para visualizar e responder.
+
+# 🔔 CONFIGURAÇÃO DE CATEGORIA DE NOTIFICAÇÃO - ANÁLISES (para testes de notificações)
+# Usado por: create-category-analyses.spec.ts, create-setting-analyses.spec.ts
+# Display Name da categoria (o sistema gera automaticamente o "name" a partir deste)
+ANALYSIS_CATEGORY_DISPLAY_NAME=Novas Análises
+
+# Descrição da categoria
+ANALYSIS_CATEGORY_DESCRIPTION=Notificação quando uma nova análise de cobertura é recebida no sistema
+
+# Assunto do email
+ANALYSIS_CATEGORY_SUBJECT=Nova análise de cobertura recebida - Sicoop
+
+# Corpo do email (use \n para quebras de linha e {{variavel}} para variáveis dinâmicas)
+ANALYSIS_CATEGORY_BODY=Você recebeu uma nova solicitação de análise de cobertura no sistema Sicoop.\n\n**Detalhes:**\n• Nome: {{nome}}\n• Email: {{email}}\n• Telefone: {{telefone}}\n• Fazenda: {{nome_fazenda}}\n• Área: {{area_fazenda_ha}} hectares\n• Observações: {{observacoes}}\n\nAcesse o sistema para visualizar e processar a análise.
+

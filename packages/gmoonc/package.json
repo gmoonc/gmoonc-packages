@@ -1,0 +1,19 @@
+{
+  "name": "gmoonc",
+  "version": "0.0.1",
+  "description": "Goalmoon Ctrl (gmoonc): kit plugável de dashboard com autenticação e RBAC, compatível com Next e Vite.",
+  "license": "MIT",
+  "homepage": "https://gmoonc.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gmoonc/gmoonc-packages.git",
+    "directory": "packages/gmoonc"
+  },
+  "bugs": {
+    "url": "https://github.com/gmoonc/gmoonc-packages/issues"
+  },
+  "main": "index.js",
+  "files": ["index.js", "README.md", "LICENSE"],
+  "keywords": ["gmoonc", "goalmoon", "dashboard", "rbac", "admin", "nextjs", "vite"]
+}
+

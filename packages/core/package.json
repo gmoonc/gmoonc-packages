@@ -1,0 +1,38 @@
+{
+  "name": "@gmoonc/core",
+  "version": "0.0.1",
+  "description": "Core do Goalmoon Ctrl (gmoonc): config, tipos e utilitários agnósticos para dashboard/RBAC.",
+  "license": "MIT",
+  "homepage": "https://gmoonc.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gmoonc/gmoonc-packages.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/gmoonc/gmoonc-packages/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+
