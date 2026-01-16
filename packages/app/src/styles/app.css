@@ -1,0 +1,248 @@
+/* App-specific styles (ported from legacy sicoop-app) */
+
+/* Auth pages */
+.gmoonc-auth-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eaf0f5 0%, #dbe2ea 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.gmoonc-auth-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(55, 65, 97, 0.1);
+  padding: 40px;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.gmoonc-auth-header {
+  margin-bottom: 30px;
+}
+
+.gmoonc-auth-header h1 {
+  color: #374161;
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+}
+
+.gmoonc-auth-header p {
+  color: #6c757d;
+  font-size: 16px;
+  margin: 0;
+}
+
+.gmoonc-auth-form {
+  text-align: left;
+}
+
+.gmoonc-auth-error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.gmoonc-auth-success {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.gmoonc-form-group {
+  margin-bottom: 20px;
+}
+
+.gmoonc-form-group label {
+  display: block;
+  color: #374161;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+}
+
+.gmoonc-form-group input,
+.gmoonc-form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #dbe2ea;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  background-color: white;
+  color: #374161;
+  box-sizing: border-box;
+}
+
+.gmoonc-form-group input::placeholder {
+  color: #879FED;
+  opacity: 0.7;
+}
+
+.gmoonc-form-group input:focus,
+.gmoonc-form-group select:focus {
+  outline: none;
+  border-color: #6374AD;
+  background-color: white;
+  color: #374161;
+}
+
+.gmoonc-form-group input:hover,
+.gmoonc-form-group select:hover {
+  border-color: #879FED;
+  background-color: #f8f9fa;
+}
+
+.gmoonc-form-group input:disabled,
+.gmoonc-form-group select:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+.gmoonc-auth-button {
+  width: 100%;
+  background: linear-gradient(135deg, #374161, #3F4A6E);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  margin-bottom: 20px;
+}
+
+.gmoonc-auth-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3F4A6E, #6374AD);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(55, 65, 97, 0.2);
+}
+
+.gmoonc-auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gmoonc-auth-links {
+  text-align: center;
+}
+
+.gmoonc-auth-link {
+  color: #6374AD;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.gmoonc-auth-link:hover {
+  color: #374161;
+  text-decoration: underline;
+}
+
+/* Content pages */
+.gmoonc-content-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(55, 65, 97, 0.1);
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.gmoonc-content-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 20px 30px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.gmoonc-content-header h2 {
+  margin: 0;
+  color: #374161;
+  font-size: 24px;
+  font-weight: 600;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+}
+
+.gmoonc-content-body {
+  padding: 30px;
+}
+
+.gmoonc-welcome-content {
+  background: white;
+  border-radius: 12px;
+  padding: 30px 40px 40px 40px;
+  box-shadow: 0 4px 20px rgba(55, 65, 97, 0.1);
+  text-align: center;
+}
+
+.gmoonc-welcome-content h2 {
+  color: #374161;
+  font-size: 32px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+}
+
+.gmoonc-welcome-content p {
+  color: #6c757d;
+  font-size: 18px;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .gmoonc-auth-card {
+    padding: 30px 20px;
+  }
+  
+  .gmoonc-auth-header h1 {
+    font-size: 24px;
+  }
+  
+  .gmoonc-content-header {
+    padding: 15px 20px;
+  }
+  
+  .gmoonc-content-header h2 {
+    font-size: 18px;
+  }
+  
+  .gmoonc-content-body {
+    padding: 12px;
+  }
+  
+  .gmoonc-welcome-content {
+    padding: 15px;
+  }
+  
+  .gmoonc-welcome-content h2 {
+    font-size: 20px;
+  }
+  
+  .gmoonc-welcome-content p {
+    font-size: 14px;
+  }
+}
