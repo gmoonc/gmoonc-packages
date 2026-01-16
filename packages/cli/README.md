@@ -19,14 +19,16 @@ npx gmoonc
 The default command will:
 
 1. **Detect your project**: Verify `package.json` exists and identify package manager (npm/pnpm/yarn)
-2. **Install dependencies**: Add `@gmoonc/app@^0.0.1` (which includes `@gmoonc/ui` and `@gmoonc/core`) and `react-router-dom@^6.0.0` if needed
+2. **Install dependencies**: Add `@gmoonc/app@^0.0.2` (which includes `@gmoonc/ui` and `@gmoonc/core`) and `react-router-dom@^6.0.0` if needed
 3. **Find entrypoint**: Look for `src/main.tsx`, `src/main.jsx`, `src/main.ts` or `src/main.js`
 4. **Inject CSS**: Add CSS imports to your entrypoint:
    ```ts
    import "@gmoonc/ui/styles.css";
    import "@gmoonc/app/styles.css";
    ```
-5. **Integrate routes**: Automatically patch `createBrowserRouter` to include gmoonc routes (if detected)
+5. **Integrate routes**: Automatically detect and patch React Router:
+   - **Data Router** (createBrowserRouter): Adds `...createGmooncRoutes({ basePath })` to router array
+   - **BrowserRouter**: Adds `<GmooncRoutes basePath="..." />` as first child of `<Routes>`
 
 ### Options
 
@@ -58,17 +60,17 @@ npx gmoonc --yes
 
 If automatic router integration is not possible, the CLI will print minimal instructions:
 
-1. Import `createGmooncRoutes` from `@gmoonc/app`
-2. Add routes to your router:
-   ```ts
-   import { createGmooncRoutes } from "@gmoonc/app";
-   
-   createBrowserRouter([
-     ...createGmooncRoutes({ basePath: "/app" }),
-     // ... your other routes
-   ])
-   ```
-3. Ensure CSS imports are present in your entrypoint
+**For Data Router (createBrowserRouter):**
+- Import `createGmooncRoutes` from `@gmoonc/app`
+- Add `...createGmooncRoutes({ basePath: "/app" })` to your router array
+
+**For BrowserRouter:**
+- Import `GmooncRoutes` from `@gmoonc/app`
+- Add `<GmooncRoutes basePath="/app" />` as the first child of `<Routes>`
+
+**Always ensure CSS imports are present in your entrypoint:**
+- `import "@gmoonc/ui/styles.css";`
+- `import "@gmoonc/app/styles.css";`
 
 ## Requirements
 

@@ -45,7 +45,7 @@ export async function runSetup(options: SetupOptions): Promise<void> {
       const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
       
       if (!deps['@gmoonc/app']) {
-        packagesToInstall.push('@gmoonc/app@^0.0.1');
+        packagesToInstall.push('@gmoonc/app@^0.0.2');
       }
       
       // Check react-router-dom
@@ -54,7 +54,7 @@ export async function runSetup(options: SetupOptions): Promise<void> {
       }
     } catch (error) {
       // If we can't read package.json, try installing anyway
-      packagesToInstall.push('@gmoonc/app@^0.0.1');
+      packagesToInstall.push('@gmoonc/app@^0.0.2');
       packagesToInstall.push('react-router-dom@^6.0.0');
     }
   } else {
@@ -121,35 +121,50 @@ export async function runSetup(options: SetupOptions): Promise<void> {
       
       if (routerResult.success) {
         if (routerResult.backupPath) {
-          console.log(`✓ Routes integrated (backup created: ${routerResult.backupPath})`);
+          const strategyMsg = routerResult.strategy === 'BrowserRouter' 
+            ? 'Router patched (BrowserRouter).' 
+            : 'Routes integrated';
+          console.log(`✓ ${strategyMsg} (backup created: ${routerResult.backupPath})`);
         } else {
-          console.log('✓ Routes integrated');
+          const strategyMsg = routerResult.strategy === 'BrowserRouter' 
+            ? 'Router patched (BrowserRouter).' 
+            : 'Routes integrated';
+          console.log(`✓ ${strategyMsg}`);
         }
       } else {
         console.log('\n⚠️  Could not automatically integrate routes.');
         console.log('\n📋 Manual integration required:');
-        console.log('\n   1. Import createGmooncRoutes:');
-        console.log('      import { createGmooncRoutes } from "@gmoonc/app";');
-        console.log('\n   2. Add routes to your router:');
-        console.log(`      createBrowserRouter([`);
-        console.log(`        ...createGmooncRoutes({ basePath: "${options.base}" }),`);
-        console.log(`        // ... your other routes`);
-        console.log(`      ])`);
-        console.log('\n   3. Make sure CSS imports are present:');
-        console.log('      import "@gmoonc/ui/styles.css";');
-        console.log('      import "@gmoonc/app/styles.css";');
+        
+        if (routerResult.strategy === 'BrowserRouter') {
+          console.log('\n   Add <GmooncRoutes basePath=\'' + options.base + '\' /> as the first child of <Routes>.');
+          console.log('   Import { GmooncRoutes } from \'@gmoonc/app\'.');
+        } else {
+          console.log('\n   For Data Router (createBrowserRouter):');
+          console.log('   import { createGmooncRoutes } from "@gmoonc/app";');
+          console.log(`   createBrowserRouter([`);
+          console.log(`     ...createGmooncRoutes({ basePath: "${options.base}" }),`);
+          console.log(`   ])`);
+          console.log('\n   For BrowserRouter:');
+          console.log('   import { GmooncRoutes } from "@gmoonc/app";');
+          console.log('   Add <GmooncRoutes basePath="' + options.base + '" /> as the first child of <Routes>.');
+        }
+        
+        console.log('\n   Make sure CSS imports exist in your entry file:');
+        console.log('   import "@gmoonc/ui/styles.css";');
+        console.log('   import "@gmoonc/app/styles.css";');
       }
     }
   } else {
     console.log('\n⚠️  Router patch skipped (--skip-router-patch)');
     console.log('\n📋 Manual integration required:');
-    console.log('\n   1. Import createGmooncRoutes:');
-    console.log('      import { createGmooncRoutes } from "@gmoonc/app";');
-    console.log('\n   2. Add routes to your router:');
-    console.log(`      createBrowserRouter([`);
-    console.log(`        ...createGmooncRoutes({ basePath: "${options.base}" }),`);
-    console.log(`        // ... your other routes`);
-    console.log(`      ])`);
+    console.log('\n   For Data Router (createBrowserRouter):');
+    console.log('   import { createGmooncRoutes } from "@gmoonc/app";');
+    console.log(`   createBrowserRouter([`);
+    console.log(`     ...createGmooncRoutes({ basePath: "${options.base}" }),`);
+    console.log(`   ])`);
+    console.log('\n   For BrowserRouter:');
+    console.log('   import { GmooncRoutes } from "@gmoonc/app";');
+    console.log('   Add <GmooncRoutes basePath="' + options.base + '" /> as the first child of <Routes>.');
   }
 
   if (!options.dryRun) {

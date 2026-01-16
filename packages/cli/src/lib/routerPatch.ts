@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createBackupIfExists } from './fs.js';
 
@@ -25,24 +25,42 @@ export function detectRouterStrategy(projectDir: string, entrypoint: string): Ro
   }
 
   // Strategy B: BrowserRouter + Routes
-  const appPath = join(projectDir, 'src/App.tsx');
-  if (existsSync(appPath)) {
-    const appContent = readFileSync(appPath, 'utf-8');
-    if (appContent.includes('<BrowserRouter>') && appContent.includes('<Routes>')) {
-      return 'BrowserRouter';
-    }
-  }
-
-  // Try App.tsx, App.jsx, App.ts, App.js
+  // Prefer App.tsx, App.jsx, App.ts, App.js (in this order)
   const appCandidates = ['src/App.tsx', 'src/App.jsx', 'src/App.ts', 'src/App.js'];
   for (const candidate of appCandidates) {
     const candidatePath = join(projectDir, candidate);
     if (existsSync(candidatePath)) {
       const candidateContent = readFileSync(candidatePath, 'utf-8');
-      if (candidateContent.includes('<BrowserRouter>') && candidateContent.includes('<Routes>')) {
+      // Confirm it has BrowserRouter, Routes, and at least one Route
+      if (candidateContent.includes('<BrowserRouter') && 
+          candidateContent.includes('<Routes') &&
+          candidateContent.includes('<Route')) {
         return 'BrowserRouter';
       }
     }
+  }
+
+  // Fallback: search for any file in src/ that contains BrowserRouter and Routes
+  // (conservative: only check first 10 files to avoid performance issues)
+  try {
+    const srcDir = join(projectDir, 'src');
+    if (existsSync(srcDir)) {
+      const files = readdirSync(srcDir, { withFileTypes: true })
+        .filter((dirent: any) => dirent.isFile() && /\.(tsx|jsx|ts|js)$/.test(dirent.name))
+        .slice(0, 10); // Conservative limit
+      
+      for (const file of files) {
+        const filePath = join(srcDir, file.name);
+        const fileContent = readFileSync(filePath, 'utf-8');
+        if (fileContent.includes('<BrowserRouter') && 
+            fileContent.includes('<Routes') &&
+            fileContent.includes('<Route')) {
+          return 'BrowserRouter';
+        }
+      }
+    }
+  } catch (error) {
+    // If we can't search, fall through to fallback
   }
 
   return 'fallback';
@@ -130,17 +148,149 @@ export function patchCreateBrowserRouter(
   };
 }
 
+/**
+ * Find the App file that contains BrowserRouter pattern
+ */
+function findBrowserRouterFile(projectDir: string): string | null {
+  // Prefer App.tsx, App.jsx, App.ts, App.js (in this order)
+  const appCandidates = ['src/App.tsx', 'src/App.jsx', 'src/App.ts', 'src/App.js'];
+  for (const candidate of appCandidates) {
+    const candidatePath = join(projectDir, candidate);
+    if (existsSync(candidatePath)) {
+      const candidateContent = readFileSync(candidatePath, 'utf-8');
+      if (candidateContent.includes('<BrowserRouter') && 
+          candidateContent.includes('<Routes') &&
+          candidateContent.includes('<Route')) {
+        return candidate;
+      }
+    }
+  }
+
+  // Fallback: search in src/ (conservative: first 10 files)
+  try {
+    const srcDir = join(projectDir, 'src');
+    if (existsSync(srcDir)) {
+      const files = readdirSync(srcDir, { withFileTypes: true })
+        .filter((dirent: any) => dirent.isFile() && /\.(tsx|jsx|ts|js)$/.test(dirent.name))
+        .slice(0, 10);
+      
+      for (const file of files) {
+        const filePath = join(srcDir, file.name);
+        const fileContent = readFileSync(filePath, 'utf-8');
+        if (fileContent.includes('<BrowserRouter') && 
+            fileContent.includes('<Routes') &&
+            fileContent.includes('<Route')) {
+          return `src/${file.name}`;
+        }
+      }
+    }
+  } catch (error) {
+    // If we can't search, return null
+  }
+
+  return null;
+}
+
 export function patchBrowserRouter(
   projectDir: string,
   basePath: string
 ): RouterPatchResult {
-  // Strategy B is too risky - we'll just provide fallback instructions
-  // The user can manually integrate if they use BrowserRouter pattern
+  // Find the file containing BrowserRouter pattern
+  const appFile = findBrowserRouterFile(projectDir);
+  
+  if (!appFile) {
+    return {
+      strategy: 'BrowserRouter',
+      success: false,
+      backupPath: null,
+      message: 'Could not find file with BrowserRouter pattern'
+    };
+  }
+
+  const appPath = join(projectDir, appFile);
+  const content = readFileSync(appPath, 'utf-8');
+
+  // Check if already patched (idempotency)
+  if (content.includes('GmooncRoutes') || content.includes('gmooncRoutes')) {
+    return {
+      strategy: 'BrowserRouter',
+      success: false,
+      backupPath: null,
+      message: 'Routes already integrated'
+    };
+  }
+
+  // Confirm it has the required pattern
+  if (!content.includes('<BrowserRouter') || !content.includes('<Routes') || !content.includes('<Route')) {
+    return {
+      strategy: 'BrowserRouter',
+      success: false,
+      backupPath: null,
+      message: 'BrowserRouter pattern not confirmed'
+    };
+  }
+
+  const backupPath = createBackupIfExists(appPath);
+
+  // A) Add import
+  const importLine = `import { GmooncRoutes } from "@gmoonc/app";`;
+  
+  // Find where to insert import (after other imports)
+  const lines = content.split('\n');
+  let lastImportIndex = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('import ') || line.startsWith('import{') || line.startsWith('import\t')) {
+      lastImportIndex = i;
+    } else if (line && lastImportIndex >= 0 && !line.startsWith('//') && !line.startsWith('/*')) {
+      break;
+    }
+  }
+
+  // Insert import
+  if (lastImportIndex >= 0) {
+    lines.splice(lastImportIndex + 1, 0, importLine);
+  } else {
+    lines.unshift(importLine);
+  }
+
+  // B) Find <Routes> and insert <GmooncRoutes /> as first child
+  const newContent = lines.join('\n');
+  
+  // Find the first <Routes> tag (could be <Routes> or <Routes ...props>)
+  const routesMatch = newContent.match(/<Routes\s*[^>]*>/);
+  
+  if (!routesMatch) {
+    return {
+      strategy: 'BrowserRouter',
+      success: false,
+      backupPath: null,
+      message: 'Could not find <Routes> tag'
+    };
+  }
+
+  const routesIndex = routesMatch.index! + routesMatch[0].length;
+  const before = newContent.substring(0, routesIndex);
+  const after = newContent.substring(routesIndex);
+  
+  // Insert GmooncRoutes as first child of Routes
+  // Add proper indentation (match the indentation of the Routes tag)
+  const routesLine = lines.find((line, idx) => {
+    const lineContent = line.trim();
+    return lineContent.startsWith('<Routes') && idx <= routesMatch.index!;
+  });
+  
+  const indent = routesLine ? routesLine.match(/^(\s*)/)?.[1] || '  ' : '  ';
+  const routesInsert = `\n${indent}  <GmooncRoutes basePath="${basePath}" />`;
+  
+  const patchedContent = before + routesInsert + after;
+  
+  writeFileSync(appPath, patchedContent, 'utf-8');
+  
   return {
     strategy: 'BrowserRouter',
-    success: false,
-    backupPath: null,
-    message: 'BrowserRouter pattern detected but auto-integration is not supported. Please integrate createGmooncRoutes() manually.'
+    success: true,
+    backupPath
   };
 }
 
@@ -160,7 +310,7 @@ export function patchRouter(
       strategy: 'fallback',
       success: false,
       backupPath: null,
-      message: 'Could not detect router pattern. Please integrate createGmooncRoutes() manually.'
+      message: 'Could not detect router pattern. Please integrate manually.'
     };
   }
 }
