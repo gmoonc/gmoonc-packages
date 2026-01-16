@@ -1,4 +1,6 @@
 export { createGmooncRoutes } from './routes/createGmooncRoutes';
+export { GmooncRoutes } from './routes/GmooncRoutes';
+export type { GmooncRoutesProps } from './routes/GmooncRoutes';
 export { GmooncAppLayout } from './layout/GMooncAppLayout';
 export { defaultConfig } from './config/defaultConfig';
 export { GMooncSessionProvider, useGMooncSession } from './session/GMooncSessionContext';

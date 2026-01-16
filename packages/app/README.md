@@ -19,9 +19,11 @@ import "@gmoonc/app/styles.css";
 
 ## Usage
 
-### React Router Integration
+There are two ways to integrate gmoonc routes into your React Router setup:
 
-Integrate with React Router's `createBrowserRouter`:
+### A) Data Router (createBrowserRouter)
+
+Use `createGmooncRoutes` to get `RouteObject[]` and spread into your router:
 
 ```tsx
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -35,6 +37,41 @@ const router = createBrowserRouter([
 function App() {
   return <RouterProvider router={router} />;
 }
+```
+
+### B) BrowserRouter (Routes/Route)
+
+Use the `GmooncRoutes` component inside your `<Routes>`:
+
+```tsx
+import { BrowserRouter, Routes } from 'react-router-dom';
+import { GmooncRoutes } from '@gmoonc/app';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <GmooncRoutes basePath="/app" />
+        {/* Your other routes */}
+      </Routes>
+    </BrowserRouter>
+  );
+}
+```
+
+### Customization
+
+You can customize routes with `filter` and `map` props if needed:
+
+```tsx
+<GmooncRoutes
+  basePath="/app"
+  filter={(route) => route.path !== '/login'} // Exclude login route
+  map={(route) => ({
+    ...route,
+    path: route.path?.replace('/app', '/dashboard') // Customize paths
+  })}
+/>
 ```
 
 ## Features
