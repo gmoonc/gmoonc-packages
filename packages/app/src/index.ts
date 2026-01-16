@@ -1,6 +1,6 @@
 export { createGmooncRoutes } from './routes/createGmooncRoutes';
 export { GmooncAppLayout } from './layout/GMooncAppLayout';
-export { defaultGmooncConfig } from './config/defaultConfig';
+export { defaultConfig } from './config/defaultConfig';
 export { GMooncSessionProvider, useGMooncSession } from './session/GMooncSessionContext';
 export type { GMooncUser, GMooncSession } from './session/GMooncSessionContext';
 
@@ -14,3 +14,10 @@ export { GMooncAppHomePage } from './pages/app/GMooncAppHomePage';
 export { GMooncPermissionsPage } from './pages/app/admin/GMooncPermissionsPage';
 export { GMooncTechnicalMessagesPage } from './pages/app/technical/GMooncTechnicalMessagesPage';
 export { GMooncCustomerMessagesPage } from './pages/app/customer/GMooncCustomerMessagesPage';
+
+// Components (optional exports)
+export { GMooncPermissionsManager } from './components/GMooncPermissionsManager';
+export { GMooncMensagensTecnicasManager } from './components/GMooncMensagensTecnicasManager';
+export { GMooncMensagensManager } from './components/GMooncMensagensManager';
+export { GMooncMensagemForm } from './components/GMooncMensagemForm';
+export { GMooncUserProfile } from './components/GMooncUserProfile';

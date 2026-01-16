@@ -4,7 +4,7 @@ interface MenuItemWithSubmenu extends CoreMenuItem {
   submenu?: MenuItemWithSubmenu[];
 }
 
-export const defaultGmooncConfig = defineConfig({
+export const defaultConfig = defineConfig({
   appName: 'Goalmoon Ctrl',
   menu: [
     {

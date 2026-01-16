@@ -1,20 +1,27 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { GmooncShell } from '@gmoonc/ui';
-import { defaultGmooncConfig } from '../config/defaultConfig';
+import { defaultConfig } from '../config/defaultConfig';
 import { GMooncSessionProvider, useGMooncSession } from '../session/GMooncSessionContext';
+import { GMooncUserProfile } from '../components/GMooncUserProfile';
 
 function GMooncAppLayoutInner() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { roles, user } = useGMooncSession();
+  const { roles, logout } = useGMooncSession();
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    navigate('/login');
+  }, [logout, navigate]);
 
   return (
     <GmooncShell
-      config={defaultGmooncConfig}
+      config={defaultConfig}
       roles={roles}
       activePath={location.pathname}
       onNavigate={(path) => navigate(path)}
+      headerRight={<GMooncUserProfile onLogoutRequest={handleLogout} />}
       renderLink={({ path, label, isActive, onClick }) => (
         <button
           type="button"
