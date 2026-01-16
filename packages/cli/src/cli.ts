@@ -6,13 +6,14 @@ import { detectProject, findEntrypoint } from './lib/detect.js';
 import { insertCssImport } from './lib/edit.js';
 import { writeFileSafe } from './lib/fs.js';
 import { CONFIG_TEMPLATE, ADMIN_SHELL_TEMPLATE } from './lib/templates.js';
+import { runScaffold } from './lib/scaffold.js';
 
 const program = new Command();
 
 program
   .name('gmoonc')
   .description('CLI do Goalmoon Ctrl (gmoonc): instalador e configurador')
-  .version('0.0.1');
+  .version('0.0.2');
 
 program
   .command('add')
@@ -108,6 +109,23 @@ program
 
     } catch (error: any) {
       console.error('\n❌ Erro:', error.message);
+      if (error.stack && process.env.DEBUG) {
+        console.error(error.stack);
+      }
+      process.exit(1);
+    }
+  });
+
+program
+  .command('scaffold')
+  .description('Scaffold complete dashboard structure with routes and pages')
+  .option('-y, --yes', 'Skip confirmations')
+  .option('--base <path>', 'Base path for dashboard routes', '/app')
+  .action(async (options) => {
+    try {
+      await runScaffold(options.base || '/app', options.yes || false);
+    } catch (error: any) {
+      console.error('\n❌ Error:', error.message);
       if (error.stack && process.env.DEBUG) {
         console.error(error.stack);
       }
