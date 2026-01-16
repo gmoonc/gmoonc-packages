@@ -1,87 +1,86 @@
 # @gmoonc/cli
 
-CLI do Goalmoon Ctrl (gmoonc): instalador e configurador.
+CLI do Goalmoon Ctrl (gmoonc): install and configure @gmoonc/app in React projects.
 
-## Instalação
-
-```bash
-npm install -g @gmoonc/cli
-```
-
-Ou use via npx (recomendado):
+## Installation
 
 ```bash
-npx @gmoonc/cli add
+npm install @gmoonc/cli
 ```
 
-## Uso
+## Usage
 
-### Comando `add`
-
-Instala e configura `@gmoonc/core` e `@gmoonc/ui` no projeto atual:
+Run the default command to install and configure @gmoonc/app:
 
 ```bash
-npx @gmoonc/cli add
+npx gmoonc
 ```
 
-Ou com confirmação automática:
+The default command will:
+
+1. **Detect your project**: Verify `package.json` exists and identify package manager (npm/pnpm/yarn)
+2. **Install dependencies**: Add `@gmoonc/app@^0.0.1` (which includes `@gmoonc/ui` and `@gmoonc/core`) and `react-router-dom@^6.0.0` if needed
+3. **Find entrypoint**: Look for `src/main.tsx`, `src/main.jsx`, `src/main.ts` or `src/main.js`
+4. **Inject CSS**: Add CSS imports to your entrypoint:
+   ```ts
+   import "@gmoonc/ui/styles.css";
+   import "@gmoonc/app/styles.css";
+   ```
+5. **Integrate routes**: Automatically patch `createBrowserRouter` to include gmoonc routes (if detected)
+
+### Options
+
+- `--yes` / `-y`: Skip confirmations and install automatically
+- `--base <path>`: Base path for dashboard routes (default: `/app`)
+- `--skip-router-patch`: Skip automatic router integration (only install and inject CSS)
+- `--dry-run`: Show what would be done without making changes
+
+### Examples
 
 ```bash
-npx @gmoonc/cli add --yes
+# Default setup with base path /app
+npx gmoonc
+
+# Custom base path
+npx gmoonc --base /dashboard
+
+# Skip router integration
+npx gmoonc --skip-router-patch
+
+# Dry run (see what would be done)
+npx gmoonc --dry-run
+
+# Skip confirmations
+npx gmoonc --yes
 ```
 
-O comando `add` faz:
+### Manual Integration
 
-1. **Detecta o projeto**: Verifica se existe `package.json` e identifica o gerenciador de pacotes (npm/pnpm/yarn)
-2. **Instala dependências**: Adiciona `@gmoonc/core@^0.0.1` e `@gmoonc/ui@^0.0.1`
-3. **Encontra o entrypoint**: Procura por `src/main.tsx`, `src/main.jsx`, `src/main.ts` ou `src/main.js`
-4. **Adiciona CSS**: Insere `import "@gmoonc/ui/styles.css";` no entrypoint
-5. **Cria arquivos padrão**:
-   - `src/gmoonc/config.ts` - Configuração do gmoonc
-   - `src/gmoonc/AdminShell.tsx` - Componente AdminShell pronto para uso
+If automatic router integration is not possible, the CLI will print minimal instructions:
 
-### Comando `scaffold`
+1. Import `createGmooncRoutes` from `@gmoonc/app`
+2. Add routes to your router:
+   ```ts
+   import { createGmooncRoutes } from "@gmoonc/app";
+   
+   createBrowserRouter([
+     ...createGmooncRoutes({ basePath: "/app" }),
+     // ... your other routes
+   ])
+   ```
+3. Ensure CSS imports are present in your entrypoint
 
-Scaffold completo com rotas, páginas e integração automática no router:
-
-```bash
-npx @gmoonc/cli scaffold
-```
-
-Ou com opções:
-
-```bash
-npx @gmoonc/cli scaffold --yes --base /app
-```
-
-O comando `scaffold` faz:
-
-1. **Executa `add` internamente**: Instala dependências e configuração básica
-2. **Instala react-router-dom**: Adiciona se não existir
-3. **Cria estrutura completa**:
-   - `src/gmoonc/config.ts` - Configuração completa com menu
-   - `src/gmoonc/GMooncAppLayout.tsx` - Layout principal com shell
-   - `src/gmoonc/routes.tsx` - Função `createGmooncRoutes()` para integração
-   - `src/gmoonc/pages/auth/*` - Páginas de autenticação (stubs)
-   - `src/gmoonc/pages/app/*` - Páginas do dashboard (stubs)
-4. **Integra automaticamente no router**: Detecta `createBrowserRouter` e integra as rotas
-5. **Pronto para uso**: Após o scaffold, abra `/app` e `/login` no navegador
-
-**Nota**: O scaffold funciona melhor com projetos React Router based. Se usar outro padrão, o CLI criará todos os arquivos e fornecerá instruções para integração manual.
-
-**⚠️ Transitional/Experimental**: O comando `scaffold` atual cria rotas e estrutura diretamente no projeto consumidor. Esta é uma versão transitional/experimental. A versão recomendada com "dashboard completo com páginas reais" será entregue via `@gmoonc/app`, e o scaffold migrará para usar esse pacote no futuro.
-
-### Segurança
-
-- Arquivos existentes são automaticamente copiados para backup antes de serem modificados
-- O formato do backup é: `arquivo.gmoonc.bak-YYYYMMDDTHHMMSS.ext`
-- Se o import do CSS já existir, não será duplicado
-
-## Requisitos
+## Requirements
 
 - Node.js 18+
-- Projeto React existente com `package.json`
-- Entrypoint em `src/main.*` (tsx, jsx, ts ou js)
+- Existing React project with `package.json`
+- Entrypoint in `src/main.*` (tsx, jsx, ts or js)
+
+## Security
+
+- Existing files are automatically backed up before modification
+- Backup format: `file.gmoonc.bak-YYYYMMDDTHHMMSS.ext`
+- CSS imports are not duplicated if they already exist
 
 ## Site
 

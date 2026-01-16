@@ -79,7 +79,7 @@ export function patchCreateBrowserRouter(
   const backupPath = createBackupIfExists(entrypointPath);
 
   // Add import
-  const importLine = `import { createGmooncRoutes } from "./gmoonc/routes";`;
+  const importLine = `import { createGmooncRoutes } from "@gmoonc/app";`;
   
   // Find where to insert import (after other imports)
   const lines = content.split('\n');
@@ -110,7 +110,7 @@ export function patchCreateBrowserRouter(
     const after = newContent.substring(routerIndex);
     
     // Insert routes at the beginning of the array
-    const routesInsert = `\n    ...createGmooncRoutes("${basePath}"),`;
+    const routesInsert = `\n    ...createGmooncRoutes({ basePath: "${basePath}" }),`;
     const patchedContent = before + routesInsert + after;
     
     writeFileSync(entrypointPath, patchedContent, 'utf-8');
@@ -142,4 +142,25 @@ export function patchBrowserRouter(
     backupPath: null,
     message: 'BrowserRouter pattern detected but auto-integration is not supported. Please integrate createGmooncRoutes() manually.'
   };
+}
+
+export function patchRouter(
+  projectDir: string,
+  entrypoint: string,
+  basePath: string
+): RouterPatchResult {
+  const strategy = detectRouterStrategy(projectDir, entrypoint);
+  
+  if (strategy === 'createBrowserRouter') {
+    return patchCreateBrowserRouter(projectDir, entrypoint, basePath);
+  } else if (strategy === 'BrowserRouter') {
+    return patchBrowserRouter(projectDir, basePath);
+  } else {
+    return {
+      strategy: 'fallback',
+      success: false,
+      backupPath: null,
+      message: 'Could not detect router pattern. Please integrate createGmooncRoutes() manually.'
+    };
+  }
 }
