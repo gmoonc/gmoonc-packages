@@ -1,6 +1,6 @@
 {
   "name": "@gmoonc/cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "CLI do Goalmoon Ctrl (gmoonc): instalador e configurador.",
   "license": "MIT",
   "homepage": "https://gmoonc.com",
@@ -16,7 +16,7 @@
   "bin": {
     "gmoonc": "./dist/cli.cjs"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": ["dist", "scripts", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsup src/cli.ts --format cjs --no-splitting && node -e \"const fs=require('fs');const f='dist/cli.cjs';fs.writeFileSync(f,'#!/usr/bin/env node\\n'+fs.readFileSync(f))\"",
     "clean": "rimraf dist",
