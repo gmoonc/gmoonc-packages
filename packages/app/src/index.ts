@@ -1,8 +1,17 @@
+// Routes
 export { createGmooncRoutes } from './routes/createGmooncRoutes';
 export { GmooncRoutes } from './routes/GmooncRoutes';
 export type { GmooncRoutesProps } from './routes/GmooncRoutes';
+
+// Layout
 export { GmooncAppLayout } from './layout/GMooncAppLayout';
+
+// Config
 export { defaultConfig } from './config/defaultConfig';
+export { createDefaultMenu } from './app/menu/defaultMenu';
+export type { MenuItemWithSubmenu } from './app/menu/defaultMenu';
+
+// Session
 export { GMooncSessionProvider, useGMooncSession } from './session/GMooncSessionContext';
 export type { GMooncUser, GMooncSession } from './session/GMooncSessionContext';
 

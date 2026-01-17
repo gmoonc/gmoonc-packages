@@ -11,10 +11,25 @@ import { GMooncPermissionsPage } from '../pages/app/admin/GMooncPermissionsPage'
 import { GMooncTechnicalMessagesPage } from '../pages/app/technical/GMooncTechnicalMessagesPage';
 import { GMooncCustomerMessagesPage } from '../pages/app/customer/GMooncCustomerMessagesPage';
 
+/**
+ * Creates route objects for the gmoonc dashboard.
+ * 
+ * IMPORTANT: This function NEVER creates a route with path="/".
+ * The dashboard is always nested under basePath (default "/app").
+ * Auth routes are separate and do not conflict with the root path.
+ * 
+ * @param options - Configuration options
+ * @param options.basePath - Base path for dashboard routes (default: "/app")
+ * @returns Array of RouteObject[] compatible with React Router v6
+ */
 export function createGmooncRoutes(options?: { basePath?: string }): RouteObject[] {
   const basePath = options?.basePath || '/app';
 
+  // Ensure basePath never equals "/" to avoid root conflicts
+  const safeBasePath = basePath === '/' ? '/app' : basePath;
+
   return [
+    // Auth routes (outside basePath, but still avoid "/" to be safe)
     {
       path: '/login',
       element: <GMooncLoginPage />
@@ -35,11 +50,13 @@ export function createGmooncRoutes(options?: { basePath?: string }): RouteObject
       path: '/logout',
       element: <GMooncLogoutPage />
     },
+    // Dashboard routes (always nested under basePath, never "/")
     {
-      path: basePath,
+      path: safeBasePath,
       element: <GmooncAppLayout />,
       children: [
         {
+          // Home page is an index route (no path="/")
           index: true,
           element: <GMooncAppHomePage />
         },

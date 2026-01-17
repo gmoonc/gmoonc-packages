@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { GmooncShell } from '@gmoonc/ui';
 import { defaultConfig } from '../config/defaultConfig';
 import { GMooncSessionProvider, useGMooncSession } from '../session/GMooncSessionContext';
@@ -23,20 +23,16 @@ function GMooncAppLayoutInner() {
       onNavigate={(path) => navigate(path)}
       headerRight={<GMooncUserProfile onLogoutRequest={handleLogout} />}
       renderLink={({ path, label, isActive, onClick }) => (
-        <button
-          type="button"
+        <Link
+          to={path}
           onClick={onClick}
           style={{
-            background: 'none',
-            border: 'none',
-            color: 'inherit',
-            cursor: 'pointer',
             textDecoration: isActive ? 'underline' : 'none',
-            font: 'inherit'
+            color: 'inherit'
           }}
         >
           {label}
-        </button>
+        </Link>
       )}
     >
       <Outlet />

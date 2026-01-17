@@ -1,6 +1,6 @@
 # @gmoonc/app
 
-Goalmoon Ctrl (gmoonc) dashboard app package: routes, pages, and layout.
+Complete pluggable dashboard app kit for React Router v6. Provides a full-featured dashboard with authentication pages, management interfaces, and a responsive layout.
 
 ## Installation
 
@@ -10,7 +10,7 @@ npm install @gmoonc/app
 
 ## CSS Import
 
-Import the required CSS files:
+Import the required CSS files in your entry point:
 
 ```javascript
 import "@gmoonc/ui/styles.css";
@@ -59,6 +59,14 @@ function App() {
 }
 ```
 
+### Important: No Root Path Conflicts
+
+**The gmoonc app kit never creates a route with `path="/"`.** The dashboard is always nested under `basePath` (default: `/app`). This ensures your app's root route remains available for your own pages.
+
+- Dashboard routes are always under `basePath` (e.g., `/app`, `/dashboard`)
+- Home page uses an index route (no explicit path)
+- Auth routes are separate and don't interfere with your root path
+
 ### Customization
 
 You can customize routes with `filter` and `map` props if needed:
@@ -76,10 +84,17 @@ You can customize routes with `filter` and `map` props if needed:
 
 ## Features
 
+- **Complete App Kit**: Full dashboard with all pages and components
 - **Auth Pages**: Login, Register, Forgot Password, Reset Password, Logout
-- **Dashboard Pages**: Home, Permissions, Technical Messages, Customer Messages
+- **Dashboard Pages**: 
+  - Home (index route)
+  - Admin → Permissions
+  - Technical → Messages
+  - Customer → Messages
+- **Components**: Permissions Manager, Messages Manager, User Profile
 - **Layout**: Integrated shell with menu and navigation
 - **Session Management**: Mock session context (ready for real auth integration)
+- **Responsive**: Mobile-first design with full responsiveness
 
 ## Note
 
