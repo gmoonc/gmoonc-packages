@@ -1,6 +1,6 @@
 {
   "name": "@gmoonc/cli",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "CLI do Goalmoon Ctrl (gmoonc): instalador e configurador.",
   "license": "MIT",
   "homepage": "https://gmoonc.com",

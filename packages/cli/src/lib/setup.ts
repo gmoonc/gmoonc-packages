@@ -45,7 +45,7 @@ export async function runSetup(options: SetupOptions): Promise<void> {
       const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
       
       if (!deps['@gmoonc/app']) {
-        packagesToInstall.push('@gmoonc/app@^0.0.2');
+        packagesToInstall.push('@gmoonc/app@^0.0.3');
       }
       
       // Check react-router-dom
@@ -54,7 +54,7 @@ export async function runSetup(options: SetupOptions): Promise<void> {
       }
     } catch (error) {
       // If we can't read package.json, try installing anyway
-      packagesToInstall.push('@gmoonc/app@^0.0.2');
+      packagesToInstall.push('@gmoonc/app@^0.0.3');
       packagesToInstall.push('react-router-dom@^6.0.0');
     }
   } else {
