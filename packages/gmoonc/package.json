@@ -1,7 +1,7 @@
 {
   "name": "gmoonc",
-  "version": "0.0.2",
-  "description": "Goalmoon Ctrl (gmoonc): kit plugável de dashboard com autenticação e RBAC, compatível com Next e Vite.",
+  "version": "0.0.3",
+  "description": "Goalmoon Ctrl (gmoonc): Complete dashboard installer for React projects",
   "license": "MIT",
   "homepage": "https://gmoonc.com",
   "repository": {
@@ -12,8 +12,31 @@
   "bugs": {
     "url": "https://github.com/gmoonc/gmoonc-packages/issues"
   },
-  "main": "index.js",
-  "files": ["index.js", "README.md", "LICENSE"],
-  "keywords": ["gmoonc", "goalmoon", "dashboard", "rbac", "admin", "nextjs", "vite"]
+  "type": "module",
+  "bin": {
+    "gmoonc": "./dist/cli.cjs"
+  },
+  "files": [
+    "dist",
+    "src/templates",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "sync:templates": "node scripts/sync-templates.mjs",
+    "build": "tsup src/cli/index.ts --format cjs --no-splitting --out-dir dist && node -e \"const fs=require('fs');const f='dist/cli.js';const cjs='dist/cli.cjs';if(fs.existsSync(f)){fs.renameSync(f,cjs);fs.writeFileSync(cjs,'#!/usr/bin/env node\\n'+fs.readFileSync(cjs))}\"",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "postinstall": "node scripts/block-global-install.cjs"
+  },
+  "dependencies": {
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^6.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
 }
-
