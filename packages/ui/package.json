@@ -1,6 +1,6 @@
 {
   "name": "@gmoonc/ui",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "UI do Goalmoon Ctrl (gmoonc): shell e menu plugáveis para dashboards (React puro, SSR-safe).",
   "license": "MIT",
   "homepage": "https://gmoonc.com",

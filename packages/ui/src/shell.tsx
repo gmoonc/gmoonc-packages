@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { GmooncConfig } from '@gmoonc/core';
 import { GmooncHeader } from './header';
 import { GmooncSidebar } from './sidebar';
-import { GmooncMenu, type MenuItem } from './menu';
+import { GmooncMenu, type GmooncMenuItem } from './menu';
 import './styles.css';
 
 export interface GmooncShellProps {
@@ -106,7 +106,7 @@ export function GmooncShell({
       <div className="gmoonc-content">
         <GmooncSidebar isOpen={menuOpen}>
           <GmooncMenu
-            items={config.menu as MenuItem[]}
+            items={config.menu as GmooncMenuItem[]}
             roles={roles}
             activePath={activePath}
             onNavigate={handleMenuNavigate}

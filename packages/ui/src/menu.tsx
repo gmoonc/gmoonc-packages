@@ -3,25 +3,49 @@ import { createPortal } from 'react-dom';
 import type { MenuItem as CoreMenuItem } from '@gmoonc/core';
 import './styles.css';
 
-export interface MenuItem extends CoreMenuItem {
-  submenu?: MenuItem[];
+/**
+ * Generic menu item type compatible with @gmoonc/app.
+ * Supports nested submenus, icons, and role-based filtering.
+ */
+export interface GmooncMenuItem extends CoreMenuItem {
+  /** Optional icon (ReactNode) - no default unicode icons */
+  icon?: React.ReactNode;
+  /** Nested submenu items */
+  submenu?: GmooncMenuItem[];
+  /** Optional icon for submenu expansion (ReactNode) - defaults to null */
+  expandIcon?: React.ReactNode;
+  /** Optional icon for submenu collapse (ReactNode) - defaults to null */
+  collapseIcon?: React.ReactNode;
 }
 
+// Legacy alias for backward compatibility
+export type MenuItem = GmooncMenuItem;
+
 export interface GmooncMenuProps {
-  items: MenuItem[];
+  /** Array of menu items */
+  items: GmooncMenuItem[];
+  /** User roles for filtering menu items */
   roles?: string[];
+  /** Current active path for highlighting */
   activePath?: string;
+  /** Callback when user navigates (used if renderLink is not provided) */
   onNavigate?: (path: string) => void;
+  /** Custom link renderer (e.g., for React Router Link, Next.js Link) */
   renderLink?: (args: {
     path: string;
     label: string;
     isActive: boolean;
     onClick?: () => void;
   }) => React.ReactNode;
+  /** Whether menu is open (for mobile/tablet) */
   isOpen?: boolean;
+  /** Callback to toggle menu open state */
   onToggle?: () => void;
+  /** Callback when logo is clicked */
   onLogoClick?: () => void;
+  /** Logo image URL */
   logoUrl?: string;
+  /** Logo alt text */
   logoAlt?: string;
 }
 
@@ -52,11 +76,41 @@ function normalizePath(path?: string | null): string {
   return cleanPath;
 }
 
-function hasRoleAccess(item: MenuItem, roles: string[] = []): boolean {
+/**
+ * Check if user has access to a menu item based on roles.
+ * Items without roles are visible to everyone.
+ */
+function hasRoleAccess(item: GmooncMenuItem, roles: string[] = []): boolean {
   if (!item.roles || item.roles.length === 0) {
     return true;
   }
   return item.roles.some(role => roles.includes(role));
+}
+
+/**
+ * Check if a path is active (exact match or parent of activePath).
+ * Robust active state: path is active if:
+ * - activePath === path (exact match)
+ * - activePath starts with path + "/" (child route)
+ */
+function isPathActive(path: string | undefined, activePath: string | undefined): boolean {
+  if (!path || !activePath) {
+    return false;
+  }
+  
+  const normalizedPath = normalizePath(path);
+  const normalizedActive = normalizePath(activePath);
+  
+  if (normalizedPath === normalizedActive) {
+    return true;
+  }
+  
+  // Check if activePath is a child of path
+  if (normalizedActive.startsWith(normalizedPath + '/')) {
+    return true;
+  }
+  
+  return false;
 }
 
 export function GmooncMenu({
@@ -124,7 +178,7 @@ export function GmooncMenu({
     setWasManuallyClosed(false);
   }, [normalizedActivePath]);
 
-  const findActiveSubmenu = useCallback((items: MenuItem[], targetPath: string): string | null => {
+  const findActiveSubmenu = useCallback((items: GmooncMenuItem[], targetPath: string): string | null => {
     if (!targetPath) {
       return null;
     }
@@ -132,7 +186,9 @@ export function GmooncMenu({
     for (const item of items) {
       if (item.submenu) {
         for (const subItem of item.submenu) {
-          if (normalizePath(subItem.path) === targetPath) {
+          const subPath = normalizePath(subItem.path);
+          // Check exact match or if targetPath is a child
+          if (subPath === targetPath || targetPath.startsWith(subPath + '/')) {
             return item.id;
           }
         }
@@ -201,12 +257,18 @@ export function GmooncMenu({
     }
   }, [isOpen, onToggle, isClient]);
 
-  const filterMenuItems = useCallback((items: MenuItem[]): MenuItem[] => {
+  /**
+   * Filter menu items recursively by roles.
+   * Items without roles are visible to everyone.
+   * If a parent item has no path but has visible children, it appears as collapsible.
+   */
+  const filterMenuItems = useCallback((items: GmooncMenuItem[]): GmooncMenuItem[] => {
     return items
       .filter(item => hasRoleAccess(item, roles))
       .map(item => {
         if (item.submenu) {
           const filteredSubmenu = filterMenuItems(item.submenu);
+          // If parent has no path but has visible children, show it as collapsible
           if (filteredSubmenu.length > 0) {
             return { ...item, submenu: filteredSubmenu };
           }
@@ -214,7 +276,7 @@ export function GmooncMenu({
         }
         return item;
       })
-      .filter((item): item is MenuItem => item !== null);
+      .filter((item): item is GmooncMenuItem => item !== null);
   }, [roles]);
 
   const filteredMenuData = useMemo(() => {
@@ -284,7 +346,7 @@ export function GmooncMenu({
     wasManuallyClosed
   ]);
 
-  const handleMenuItemClick = useCallback((item: MenuItem) => {
+  const handleMenuItemClick = useCallback((item: GmooncMenuItem) => {
     if (item.submenu) {
       const nextSubmenu = activeSubmenu === item.id ? null : item.id;
       setActiveSubmenu(nextSubmenu);
@@ -296,6 +358,8 @@ export function GmooncMenu({
         setWasManuallyClosed(false);
       }
     } else if (item.path) {
+      // If renderLink is provided, it handles navigation
+      // Otherwise, use onNavigate
       if (onNavigate) {
         onNavigate(item.path);
       }
@@ -305,54 +369,74 @@ export function GmooncMenu({
     }
   }, [activeSubmenu, onNavigate, onToggle, isOpen]);
 
-  const isSubItemActive = useCallback((subItem: MenuItem) => {
+  const isSubItemActive = useCallback((subItem: GmooncMenuItem) => {
     if (!subItem.path) {
       return false;
     }
 
-    const normalizedPath = normalizePath(subItem.path);
-    if (!normalizedPath) {
-      return false;
-    }
+    return isPathActive(subItem.path, normalizedActivePath || activeSubItemPath);
+  }, [normalizedActivePath, activeSubItemPath]);
 
-    return activeSubItemPath === normalizedPath || normalizedActivePath === normalizedPath;
-  }, [activeSubItemPath, normalizedActivePath]);
-
-  const renderMenuItem = useCallback((item: MenuItem) => {
+  const renderMenuItem = useCallback((item: GmooncMenuItem) => {
     const hasSubmenu = !!item.submenu && item.submenu.length > 0;
-    const isActive = activeSubmenu === item.id;
+    const isSubmenuOpen = activeSubmenu === item.id;
+    const isItemActive = item.path ? isPathActive(item.path, normalizedActivePath) : false;
+
+    const handleItemClick = () => {
+      handleMenuItemClick(item);
+    };
+
+    // Render main item link/button
+    const mainItemContent = item.path && renderLink ? (
+      renderLink({
+        path: item.path,
+        label: item.label,
+        isActive: isItemActive,
+        onClick: handleItemClick
+      })
+    ) : (
+      <button
+        type="button"
+        className={`gmoonc-menu-link ${hasSubmenu ? 'has-submenu' : ''} ${isSubmenuOpen ? 'submenu-open' : ''} ${isItemActive ? 'active' : ''}`}
+        onClick={handleItemClick}
+        disabled={!item.path && !hasSubmenu && !onNavigate}
+      >
+        {item.icon && <span className="gmoonc-menu-icon">{item.icon}</span>}
+        <span className="gmoonc-menu-label">{item.label}</span>
+        {hasSubmenu && (
+          <span className="gmoonc-submenu-arrow">
+            {isSubmenuOpen 
+              ? (item.collapseIcon || null)
+              : (item.expandIcon || null)
+            }
+          </span>
+        )}
+      </button>
+    );
 
     return (
       <li key={item.id} className="gmoonc-menu-item">
-        <button
-          type="button"
-          className={`gmoonc-menu-link ${hasSubmenu ? 'has-submenu' : ''} ${isActive ? 'active' : ''}`}
-          onClick={() => handleMenuItemClick(item)}
-        >
-          {item.label}
-          {hasSubmenu && (
-            <span className="gmoonc-submenu-arrow">
-              {isActive ? '▼' : '▶'}
-            </span>
-          )}
-        </button>
-        {hasSubmenu && isActive && (
+        {mainItemContent}
+        {hasSubmenu && isSubmenuOpen && (
           <ul className="gmoonc-submenu">
             {item.submenu!.map((subItem) => {
               const isSubActive = isSubItemActive(subItem);
-              const normalizedSubPath = normalizePath(subItem.path);
 
               const handleSubItemClick = () => {
-                if (onNavigate && subItem.path) {
-                  onNavigate(subItem.path);
+                if (subItem.path) {
+                  if (renderLink) {
+                    // renderLink handles navigation
+                  } else if (onNavigate) {
+                    onNavigate(subItem.path);
+                  }
                 }
                 if (typeof window !== 'undefined' && window.innerWidth <= 1366 && onToggle && isOpen) {
                   onToggle();
                 }
               };
 
-              const linkContent = renderLink ? renderLink({
-                path: subItem.path || '',
+              const linkContent = renderLink && subItem.path ? renderLink({
+                path: subItem.path,
                 label: subItem.label,
                 isActive: isSubActive,
                 onClick: handleSubItemClick
@@ -361,8 +445,10 @@ export function GmooncMenu({
                   type="button"
                   className={`gmoonc-submenu-link ${isSubActive ? 'active' : ''}`}
                   onClick={handleSubItemClick}
+                  disabled={!subItem.path && !onNavigate}
                 >
-                  {subItem.label}
+                  {subItem.icon && <span className="gmoonc-menu-icon">{subItem.icon}</span>}
+                  <span>{subItem.label}</span>
                 </button>
               );
 
@@ -381,6 +467,7 @@ export function GmooncMenu({
     handleMenuItemClick,
     isOpen,
     isSubItemActive,
+    normalizedActivePath,
     onNavigate,
     onToggle,
     renderLink

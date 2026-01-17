@@ -1,14 +1,22 @@
 # @gmoonc/ui
 
-UI do Goalmoon Ctrl (gmoonc): shell e menu plugáveis para dashboards (React puro, SSR-safe).
+Pluggable UI components for Goalmoon Ctrl (gmoonc): shell and menu for dashboards (pure React, SSR-safe).
 
-## Instalação
+## Installation
 
 ```bash
-npm i @gmoonc/ui
+npm install @gmoonc/ui
 ```
 
-## Uso Básico
+## CSS Import
+
+Import the required CSS file:
+
+```tsx
+import "@gmoonc/ui/styles.css";
+```
+
+## Basic Usage
 
 ```tsx
 import { defineConfig } from '@gmoonc/core';
@@ -16,10 +24,18 @@ import { GmooncShell } from '@gmoonc/ui';
 import '@gmoonc/ui/styles.css';
 
 const config = defineConfig({
-  appName: 'Meu Dashboard',
+  appName: 'My Dashboard',
   menu: [
-    { id: 'home', label: 'Home', path: '/' },
-    { id: 'admin', label: 'Admin', path: '/admin', roles: ['admin'] }
+    { id: 'home', label: 'Home', path: '/app' },
+    { 
+      id: 'admin', 
+      label: 'Admin', 
+      path: '/app/admin', 
+      roles: ['admin'],
+      submenu: [
+        { id: 'admin-permissions', label: 'Permissions', path: '/app/admin/permissions' }
+      ]
+    }
   ]
 });
 
@@ -28,117 +44,185 @@ function App() {
     <GmooncShell
       config={config}
       roles={['admin']}
-      activePath="/"
+      activePath="/app/admin/permissions"
       onNavigate={(path) => {
-        // Sua lógica de navegação aqui
-        console.log('Navegar para:', path);
+        // Your navigation logic here
+        console.log('Navigate to:', path);
       }}
     >
-      <div>Conteúdo do dashboard</div>
+      <div>Dashboard content</div>
     </GmooncShell>
   );
 }
 ```
 
-## Integração com Navegação
+## Navigation Integration
 
-O `@gmoonc/ui` é framework-agnostic e não depende de nenhum sistema de roteamento específico. Você pode integrá-lo com qualquer framework usando as props `onNavigate` e/ou `renderLink`.
+`@gmoonc/ui` is framework-agnostic and doesn't depend on any specific routing system. You can integrate it with any framework using the `onNavigate` and/or `renderLink` props.
 
-### Usando `onNavigate`
+### Using `onNavigate`
 
 ```tsx
 <GmooncShell
   config={config}
   onNavigate={(path) => {
-    // Next.js
-    router.push(path);
-    
     // React Router
     navigate(path);
     
-    // Outro sistema
+    // Next.js
+    router.push(path);
+    
+    // Other system
     window.location.href = path;
   }}
 />
 ```
 
-### Usando `renderLink`
+### Using `renderLink`
 
-Para controle total sobre como os links são renderizados:
+For full control over how links are rendered (e.g., React Router `Link`, Next.js `Link`):
 
 ```tsx
+import { Link } from 'react-router-dom';
+
 <GmooncShell
   config={config}
-  renderLink={({ path, label, isActive, onClick }) => {
-    // Next.js
-    return (
-      <Link href={path} onClick={onClick} className={isActive ? 'active' : ''}>
-        {label}
-      </Link>
-    );
-    
-    // React Router
-    return (
-      <NavLink to={path} onClick={onClick} className={isActive ? 'active' : ''}>
-        {label}
-      </NavLink>
-    );
-  }}
+  activePath={location.pathname}
+  renderLink={({ path, label, isActive, onClick }) => (
+    <Link 
+      to={path} 
+      onClick={onClick}
+      className={isActive ? 'active' : ''}
+    >
+      {label}
+    </Link>
+  )}
 />
 ```
 
-## CSS
+## Menu Items with Icons
 
-Importe o CSS do pacote:
+Menu items support optional icons (ReactNode). No default unicode icons are used:
 
 ```tsx
-import "@gmoonc/ui/styles.css";
+import { Home, Settings } from 'lucide-react';
+
+const config = defineConfig({
+  appName: 'My App',
+  menu: [
+    { 
+      id: 'home', 
+      label: 'Home', 
+      path: '/app',
+      icon: <Home size={16} />
+    },
+    { 
+      id: 'settings', 
+      label: 'Settings', 
+      path: '/app/settings',
+      icon: <Settings size={16} />,
+      submenu: [
+        { 
+          id: 'settings-profile', 
+          label: 'Profile', 
+          path: '/app/settings/profile',
+          icon: <User size={16} />
+        }
+      ]
+    }
+  ]
+});
 ```
 
-## Componentes
+## Active State
+
+The menu automatically highlights active items based on `activePath`:
+
+- **Exact match**: `activePath === item.path`
+- **Child route**: `activePath` starts with `item.path + "/"`
+
+This ensures parent menu items are highlighted when viewing child pages.
+
+## Components
 
 ### GmooncShell
 
-Componente principal que combina header, sidebar e menu.
+Main component that combines header, sidebar, and menu.
 
 **Props:**
-- `config: GmooncConfig` - Configuração do app (de `@gmoonc/core`)
-- `roles?: string[]` - Roles do usuário atual para filtrar menu
-- `activePath?: string` - Caminho ativo para destacar item do menu
-- `onNavigate?: (path: string) => void` - Callback quando usuário clica em item
-- `renderLink?: (args) => React.ReactNode` - Função para renderizar links customizados
-- `children?: React.ReactNode` - Conteúdo principal
-- `headerRight?: React.ReactNode` - Conteúdo do lado direito do header
-- `logoUrl?: string` - URL da logo
-- `logoAlt?: string` - Texto alternativo da logo
-- `titleMobile?: string` - Título para mobile
+- `config: GmooncConfig` - App configuration (from `@gmoonc/core`)
+- `roles?: string[]` - Current user roles for filtering menu
+- `activePath?: string` - Active path for highlighting menu item
+- `onNavigate?: (path: string) => void` - Callback when user clicks menu item
+- `renderLink?: (args) => React.ReactNode` - Function to render custom links
+- `children?: React.ReactNode` - Main content
+- `headerRight?: React.ReactNode` - Content for right side of header
+- `logoUrl?: string` - Logo image URL
+- `logoAlt?: string` - Logo alt text
+- `titleMobile?: string` - Title for mobile view
 
 ### GmooncMenu
 
-Componente de menu standalone.
+Standalone menu component.
+
+**Props:**
+- `items: GmooncMenuItem[]` - Array of menu items
+- `roles?: string[]` - User roles for filtering
+- `activePath?: string` - Active path for highlighting
+- `onNavigate?: (path: string) => void` - Navigation callback
+- `renderLink?: (args) => React.ReactNode` - Custom link renderer
+- `isOpen?: boolean` - Whether menu is open (mobile/tablet)
+- `onToggle?: () => void` - Toggle menu callback
+- `onLogoClick?: () => void` - Logo click callback
+- `logoUrl?: string` - Logo image URL
+- `logoAlt?: string` - Logo alt text
+
+### GmooncMenuItem Type
+
+```tsx
+interface GmooncMenuItem {
+  id: string;
+  label: string;
+  path?: string;
+  icon?: React.ReactNode;        // Optional icon (no default unicode icons)
+  roles?: string[];              // Roles required to see this item
+  submenu?: GmooncMenuItem[];   // Nested submenu
+  expandIcon?: React.ReactNode;  // Optional icon for submenu expansion
+  collapseIcon?: React.ReactNode; // Optional icon for submenu collapse
+}
+```
 
 ### GmooncHeader
 
-Componente de header standalone.
+Standalone header component.
 
 ### GmooncSidebar
 
-Componente de sidebar standalone.
+Standalone sidebar component.
+
+## Role-Based Filtering
+
+Menu items are automatically filtered based on user roles:
+
+- Items without `roles` are visible to everyone
+- Items with `roles` are visible only if user has at least one matching role
+- Filtering is applied recursively to submenus
+- Parent items without paths but with visible children appear as collapsible
 
 ## SSR Safety
 
-Todos os componentes são SSR-safe e não acessam APIs do browser no top-level. Qualquer acesso a `window` ou `document` é feito dentro de `useEffect` com checagens apropriadas.
+All components are SSR-safe and don't access browser APIs at the top level. Any access to `window` or `document` is done inside `useEffect` with appropriate checks.
 
 ## Framework Agnostic
 
-O pacote não depende de:
+This package doesn't depend on:
 - Next.js
 - React Router
 - Expo
-- Qualquer outro framework específico
+- Any other specific framework
 
-É React puro e funciona em qualquer ambiente React (incluindo SSR).
+It's pure React and works in any React environment (including SSR).
 
-## Site
+## License
 
-https://gmoonc.com
+MIT
