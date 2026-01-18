@@ -1,6 +1,6 @@
 import { readFile, writeFileSafe, ensureDirectoryExists } from './fs.js';
 import { existsSync } from 'fs';
-import { join, relative } from 'path';
+import { join, relative, dirname, resolve } from 'path';
 import { logSuccess, logError, logInfo } from './logger.js';
 
 export interface PatchResult {
@@ -9,106 +9,171 @@ export interface PatchResult {
   message?: string;
 }
 
+interface ParsedImport {
+  line: string;
+  defaultExport?: string;
+  namedExports: string[];
+  from: string;
+  lineNumber: number;
+}
+
+interface RouteComponent {
+  componentName: string;
+  path: string; // "/" or "*"
+  import: ParsedImport | null;
+}
+
 /**
- * Extract imports for Index and NotFound components from App.tsx
+ * Parse all import statements from App.tsx
  */
-function extractRouteComponents(appContent: string): {
-  indexImport: string | null;
-  notFoundImport: string | null;
-  indexComponent: string | null;
-  notFoundComponent: string | null;
-} {
-  // Try to find <Route path="/" element={<Index />} /> or <Route path="/" element={<Index/>} />
-  const indexRouteMatch = appContent.match(/<Route\s+path=["']\/["']\s+element=\{<(\w+)\s*\/?>\}\s*\/?>/);
-  const indexComponent = indexRouteMatch ? indexRouteMatch[1] : null;
-
-  // Try to find <Route path="*" element={<NotFound />} /> or <Route path="*" element={<NotFound/>} />
-  const notFoundRouteMatch = appContent.match(/<Route\s+path=["']\*["']\s+element=\{<(\w+)\s*\/?>\}\s*\/?>/);
-  const notFoundComponent = notFoundRouteMatch ? notFoundRouteMatch[1] : null;
-
-  // Extract imports for these components
-  let indexImport: string | null = null;
-  let notFoundImport: string | null = null;
-
-  const lines = appContent.split('\n');
+function parseImports(content: string): ParsedImport[] {
+  const imports: ParsedImport[] = [];
+  const lines = content.split('\n');
   
-  if (indexComponent) {
-    // Find import line that contains the component name
-    // Match patterns like: import Index from "./pages/Index";
-    // or: import { Index } from "./pages/Index";
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('import')) {
-        // Check for default import: import Index from "..."
-        const defaultImportMatch = trimmed.match(/import\s+(\w+)\s+from\s+["']([^"']+)["']/);
-        if (defaultImportMatch && defaultImportMatch[1] === indexComponent) {
-          indexImport = trimmed;
-          break;
-        }
-        // Check for named import: import { Index } from "..."
-        const namedImportMatch = trimmed.match(/import\s+\{[^}]*\b(\w+)\b[^}]*\}\s+from\s+["']([^"']+)["']/);
-        if (namedImportMatch && namedImportMatch[1] === indexComponent) {
-          indexImport = trimmed;
-          break;
-        }
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line.startsWith('import')) {
+      continue;
+    }
+    
+    // Match: import X from "path"
+    const defaultMatch = line.match(/^import\s+(\w+)\s+from\s+["']([^"']+)["']/);
+    if (defaultMatch) {
+      imports.push({
+        line,
+        defaultExport: defaultMatch[1],
+        namedExports: [],
+        from: defaultMatch[2],
+        lineNumber: i
+      });
+      continue;
+    }
+    
+    // Match: import { X, Y } from "path"
+    const namedMatch = line.match(/^import\s+\{([^}]+)\}\s+from\s+["']([^"']+)["']/);
+    if (namedMatch) {
+      const exports = namedMatch[1].split(',').map(s => s.trim());
+      imports.push({
+        line,
+        defaultExport: undefined,
+        namedExports: exports,
+        from: namedMatch[2],
+        lineNumber: i
+      });
+      continue;
+    }
+    
+    // Match: import X, { Y } from "path"
+    const mixedMatch = line.match(/^import\s+(\w+)\s*,\s*\{([^}]+)\}\s+from\s+["']([^"']+)["']/);
+    if (mixedMatch) {
+      const exports = mixedMatch[2].split(',').map(s => s.trim());
+      imports.push({
+        line,
+        defaultExport: mixedMatch[1],
+        namedExports: exports,
+        from: mixedMatch[3],
+        lineNumber: i
+      });
+    }
+  }
+  
+  return imports;
+}
+
+/**
+ * Find all Route components used in <Routes> block
+ */
+function findRouteComponents(content: string): RouteComponent[] {
+  const routes: RouteComponent[] = [];
+  
+  // Find <Routes> block
+  const routesStart = content.indexOf('<Routes');
+  if (routesStart === -1) {
+    return routes;
+  }
+  
+  // Find matching </Routes>
+  let depth = 1;
+  let pos = routesStart + '<Routes'.length;
+  let routesEnd = -1;
+  
+  while (pos < content.length && depth > 0) {
+    if (content.substring(pos).startsWith('<Routes')) {
+      depth++;
+      pos += '<Routes'.length;
+    } else if (content.substring(pos).startsWith('</Routes>')) {
+      depth--;
+      if (depth === 0) {
+        routesEnd = pos + '</Routes>'.length;
+        break;
+      }
+      pos += '</Routes>'.length;
+    } else {
+      pos++;
+    }
+  }
+  
+  if (routesEnd === -1) {
+    return routes;
+  }
+  
+  const routesContent = content.substring(routesStart, routesEnd);
+  
+  // Find all <Route path="..." element={<Component />} />
+  // Support multiple formats:
+  // - <Route path="/" element={<Index />} />
+  // - <Route path="/" element={<Index/>} />
+  // - <Route path="*" element={<NotFound />} />
+  const routePattern = /<Route\s+path=["']([^"']+)["']\s+element=\{<(\w+)\s*\/?>\}\s*\/?>/g;
+  let match;
+  
+  while ((match = routePattern.exec(routesContent)) !== null) {
+    routes.push({
+      componentName: match[2],
+      path: match[1],
+      import: null
+    });
+  }
+  
+  return routes;
+}
+
+/**
+ * Match route components with their imports
+ */
+function matchComponentsWithImports(routes: RouteComponent[], imports: ParsedImport[]): void {
+  for (const route of routes) {
+    for (const imp of imports) {
+      // Check default export
+      if (imp.defaultExport === route.componentName) {
+        route.import = imp;
+        break;
+      }
+      // Check named exports
+      if (imp.namedExports.includes(route.componentName)) {
+        route.import = imp;
+        break;
       }
     }
   }
-
-  if (notFoundComponent) {
-    // Find import line that contains the component name
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('import')) {
-        // Check for default import
-        const defaultImportMatch = trimmed.match(/import\s+(\w+)\s+from\s+["']([^"']+)["']/);
-        if (defaultImportMatch && defaultImportMatch[1] === notFoundComponent) {
-          notFoundImport = trimmed;
-          break;
-        }
-        // Check for named import
-        const namedImportMatch = trimmed.match(/import\s+\{[^}]*\b(\w+)\b[^}]*\}\s+from\s+["']([^"']+)["']/);
-        if (namedImportMatch && namedImportMatch[1] === notFoundComponent) {
-          notFoundImport = trimmed;
-          break;
-        }
-      }
-    }
-  }
-
-  return { indexImport, notFoundImport, indexComponent, notFoundComponent };
 }
 
 /**
  * Convert import path to relative path from AppRoutes.tsx location
- * AppRoutes.tsx is in src/gmoonc/router/, so we need to convert paths from src/ to ../../pages/
  */
-function convertImportToRelative(importLine: string, appRoutesPath: string, appPath: string): string {
-  // Extract the path from the import statement
-  // Match: import X from "path" or import { X } from "path"
-  const pathMatch = importLine.match(/from\s+["']([^"']+)["']/);
-  if (!pathMatch) {
-    return importLine; // Return as-is if no path found
-  }
-  
-  const originalPath = pathMatch[1];
-  
+function convertImportToRelative(
+  importLine: string,
+  originalPath: string,
+  appRoutesDir: string,
+  appDir: string
+): string {
   // If it's a node_modules import, return as-is
   if (!originalPath.startsWith('./') && !originalPath.startsWith('../')) {
     return importLine;
   }
   
-  // Get directory of App.tsx (where the original import is from)
-  // Usually src/App.tsx, so appDir is src/
-  const appDir = appPath.substring(0, appPath.lastIndexOf('/'));
-  
   // Resolve the original path relative to appDir
-  // Example: ./pages/Index from src/ becomes src/pages/Index
-  const resolvedPath = join(appDir, originalPath);
-  
-  // AppRoutes.tsx is in src/gmoonc/router/
-  // So from src/gmoonc/router/ to src/pages/Index is ../../pages/Index
-  const appRoutesDir = appRoutesPath.substring(0, appRoutesPath.lastIndexOf('/'));
+  const resolvedPath = resolve(appDir, originalPath);
   
   // Calculate relative path from appRoutesDir to resolvedPath
   const relativePath = relative(appRoutesDir, resolvedPath);
@@ -117,23 +182,22 @@ function convertImportToRelative(importLine: string, appRoutesPath: string, appP
   const normalizedPath = relativePath.replace(/\\/g, '/');
   const finalPath = normalizedPath.startsWith('.') ? normalizedPath : './' + normalizedPath;
   
-  return importLine.replace(pathMatch[1], finalPath);
+  return importLine.replace(originalPath, finalPath);
 }
 
 /**
- * Generate AppRoutes.tsx file
+ * Generate AppRoutes.tsx file with correct relative imports
  */
 function generateAppRoutes(
   consumerDir: string,
   basePath: string,
-  indexImport: string | null,
-  notFoundImport: string | null,
-  indexComponent: string | null,
-  notFoundComponent: string | null,
+  routes: RouteComponent[],
   appPath: string,
   dryRun: boolean
 ): { success: boolean } {
   const appRoutesPath = join(consumerDir, 'src/gmoonc/router/AppRoutes.tsx');
+  const appRoutesDir = dirname(appRoutesPath);
+  const appDir = dirname(appPath);
   
   if (dryRun) {
     logInfo(`[DRY RUN] Would generate ${appRoutesPath}`);
@@ -143,39 +207,45 @@ function generateAppRoutes(
   ensureDirectoryExists(appRoutesPath);
 
   // Build the routes array
-  const routes: string[] = [];
+  const routeElements: string[] = [];
   
-  if (indexComponent) {
-    routes.push(`    { path: "/", element: <${indexComponent} /> }`);
+  // Add consumer routes (Index and NotFound)
+  for (const route of routes) {
+    if (route.path === '/' || route.path === '*') {
+      routeElements.push(`    { path: "${route.path}", element: <${route.componentName} /> }`);
+    }
   }
   
-  routes.push(`    ...createGmooncRoutes({ basePath })`);
-  
-  if (notFoundComponent) {
-    routes.push(`    { path: "*", element: <${notFoundComponent} /> }`);
-  }
+  // Add gmoonc routes
+  routeElements.push(`    ...createGmooncRoutes({ basePath })`);
 
+  // Build imports
   const imports: string[] = [
     "import { useRoutes, type RouteObject } from 'react-router-dom';",
     "import { createGmooncRoutes } from './createGmooncRoutes';"
   ];
 
-  // Convert imports to relative paths from AppRoutes.tsx location (src/gmoonc/router/)
-  // AppRoutes.tsx is in src/gmoonc/router/, so imports to src/pages/ should be ../../pages/
-  if (indexImport) {
-    const convertedImport = convertImportToRelative(indexImport, appRoutesPath, appPath);
-    imports.push(convertedImport);
-  }
-  if (notFoundImport) {
-    const convertedImport = convertImportToRelative(notFoundImport, appRoutesPath, appPath);
-    imports.push(convertedImport);
+  // Add imports for consumer components with correct relative paths
+  for (const route of routes) {
+    if ((route.path === '/' || route.path === '*') && route.import) {
+      const convertedImport = convertImportToRelative(
+        route.import.line,
+        route.import.from,
+        appRoutesDir,
+        appDir
+      );
+      // Avoid duplicates
+      if (!imports.includes(convertedImport)) {
+        imports.push(convertedImport);
+      }
+    }
   }
 
   const content = `${imports.join('\n')}
 
 export function GMooncAppRoutes({ basePath = "${basePath}" }: { basePath?: string }) {
   const allRoutes: RouteObject[] = [
-${routes.join(',\n')}
+${routeElements.join(',\n')}
   ];
 
   return useRoutes(allRoutes);
@@ -190,6 +260,7 @@ ${routes.join(',\n')}
 
 /**
  * Patch App.tsx to use GMooncAppRoutes
+ * Preserves all wrappers and only modifies the router block
  */
 export function patchBrowserRouter(
   consumerDir: string,
@@ -228,22 +299,40 @@ export function patchBrowserRouter(
   }
 
   // Confirm BrowserRouter pattern
-  if (!appContent.includes('<BrowserRouter') || !appContent.includes('<Routes') || !appContent.includes('<Route')) {
+  if (!appContent.includes('<BrowserRouter') || !appContent.includes('<Routes')) {
     return {
       success: false,
       backupPath: null,
-      message: 'BrowserRouter pattern not found in App.tsx'
+      message: 'BrowserRouter pattern not found in App.tsx. Expected <BrowserRouter> with <Routes> inside.'
     };
   }
 
-  // Extract route components
-  const { indexImport, notFoundImport, indexComponent, notFoundComponent } = extractRouteComponents(appContent);
-
-  if (!indexComponent && !notFoundComponent) {
+  // Parse imports
+  const imports = parseImports(appContent);
+  
+  // Find route components
+  const routes = findRouteComponents(appContent);
+  
+  if (routes.length === 0) {
     return {
       success: false,
       backupPath: null,
-      message: 'Could not find Index or NotFound components in App.tsx. Please ensure you have <Route path="/" ...> and/or <Route path="*" ...>'
+      message: 'Could not find any <Route> components in <Routes> block. Please ensure you have routes defined.'
+    };
+  }
+  
+  // Match components with imports
+  matchComponentsWithImports(routes, imports);
+  
+  // Check if we found Index or NotFound
+  const hasIndex = routes.some(r => r.path === '/' && r.import);
+  const hasNotFound = routes.some(r => r.path === '*' && r.import);
+  
+  if (!hasIndex && !hasNotFound) {
+    return {
+      success: false,
+      backupPath: null,
+      message: 'Could not find Index (path="/") or NotFound (path="*") components with valid imports in App.tsx'
     };
   }
 
@@ -253,10 +342,10 @@ export function patchBrowserRouter(
   }
 
   // Generate AppRoutes.tsx
-  generateAppRoutes(consumerDir, basePath, indexImport, notFoundImport, indexComponent, notFoundComponent, appPath, false);
+  generateAppRoutes(consumerDir, basePath, routes, appPath, false);
 
   // Patch App.tsx
-  const backupPath = writeFileSafe(appPath, ''); // Will be overwritten below
+  const backupPath = writeFileSafe(appPath, '');
   
   const lines = appContent.split('\n');
   
@@ -279,7 +368,6 @@ export function patchBrowserRouter(
     if (reactRouterImportIndex >= 0) {
       // Update existing react-router-dom import to include BrowserRouter
       const existingLine = lines[reactRouterImportIndex];
-      // Check if it's a named import
       if (existingLine.includes('{') && existingLine.includes('}')) {
         // Add BrowserRouter to the named imports
         const updatedLine = existingLine.replace(/\{([^}]+)\}/, (match, imports) => {
@@ -388,7 +476,6 @@ export function patchBrowserRouter(
   newContent = before + replacement + after;
 
   // Remove unused Routes, Route imports if they're not used elsewhere
-  // (This is a simple check - could be enhanced)
   if (!newContent.match(/<Routes[^>]*>/g) && !newContent.match(/<Route[^>]*>/g)) {
     newContent = newContent.replace(/import\s+{[^}]*Routes[^}]*}\s+from\s+["']react-router-dom["'];?\n?/g, '');
     newContent = newContent.replace(/import\s+{[^}]*Route[^}]*}\s+from\s+["']react-router-dom["'];?\n?/g, '');

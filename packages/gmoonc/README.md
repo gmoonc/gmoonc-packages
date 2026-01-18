@@ -10,34 +10,18 @@ npm install gmoonc
 
 ## Usage
 
-Run the installer in your React project root:
+After installing, run the installer in your React project root:
 
 ```bash
-npx gmoonc
+npm exec -- gmoonc --auto
 ```
 
-Or skip confirmations (recommended):
-
-```bash
-npx gmoonc -y
-```
-
-**Note for Windows/npm 11+:** If you encounter issues with `--yes`, use the short flag `-y` instead:
-
-```bash
-npx gmoonc -y
-```
-
-Or use the pass-through syntax:
-
-```bash
-npx gmoonc -- --yes
-```
+This command works reliably on all platforms (Windows, macOS, Linux) and with all npm versions.
 
 With custom base path:
 
 ```bash
-npx gmoonc -y --base /dashboard
+npm exec -- gmoonc --auto --base /dashboard
 ```
 
 ## What it does
@@ -49,7 +33,7 @@ npx gmoonc -y --base /dashboard
 
 ## Options
 
-- `-y`, `--yes`, `--auto`: Skip confirmations and install automatically (recommended: use `-y`)
+- `--auto`: Skip confirmations and install automatically (no prompts)
 - `--base <path>`: Base path for dashboard routes (default: `/app`)
 - `--skip-router-patch`: Skip automatic router integration
 - `--dry-run`: Show what would be done without making changes
