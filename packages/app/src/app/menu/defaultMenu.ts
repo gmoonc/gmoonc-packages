@@ -34,9 +34,27 @@ export function createDefaultMenu(basePath: string = '/app'): MenuItemWithSubmen
       roles: ['admin'],
       submenu: [
         {
+          id: 'admin-users',
+          label: 'Users',
+          path: `${basePath}/admin/users`,
+          roles: ['admin']
+        },
+        {
           id: 'admin-permissions',
           label: 'Permissions',
           path: `${basePath}/admin/permissions`,
+          roles: ['admin']
+        },
+        {
+          id: 'admin-authorizations',
+          label: 'Authorization Management',
+          path: `${basePath}/admin/authorizations`,
+          roles: ['admin']
+        },
+        {
+          id: 'admin-notifications',
+          label: 'Notification Management',
+          path: `${basePath}/admin/notifications`,
           roles: ['admin']
         }
       ]

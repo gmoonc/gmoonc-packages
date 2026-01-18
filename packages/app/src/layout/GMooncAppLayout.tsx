@@ -15,13 +15,27 @@ function GMooncAppLayoutInner() {
     navigate('/login');
   }, [logout, navigate]);
 
+  const handleAccount = useCallback(() => {
+    navigate('/app/office/account');
+  }, [navigate]);
+
+  const handleAbout = useCallback(() => {
+    navigate('/app/office/about');
+  }, [navigate]);
+
   return (
     <GmooncShell
       config={defaultConfig}
       roles={roles}
       activePath={location.pathname}
       onNavigate={(path) => navigate(path)}
-      headerRight={<GMooncUserProfile onLogoutRequest={handleLogout} />}
+      headerRight={
+        <GMooncUserProfile
+          onAccount={handleAccount}
+          onAbout={handleAbout}
+          onLogoutRequest={handleLogout}
+        />
+      }
       renderLink={({ path, label, isActive, onClick }) => (
         <Link
           to={path}

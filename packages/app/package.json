@@ -1,6 +1,6 @@
 {
   "name": "@gmoonc/app",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Goalmoon Ctrl (gmoonc) dashboard app package: routes, pages, and layout.",
   "license": "MIT",
   "homepage": "https://gmoonc.com",
@@ -41,6 +41,7 @@
   "dependencies": {
     "@gmoonc/core": "^0.0.1",
     "@gmoonc/ui": "^0.0.1",
+    "lucide-react": "^0.263.1",
     "react-router-dom": "^6.0.0"
   },
   "devDependencies": {

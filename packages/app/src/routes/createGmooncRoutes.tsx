@@ -8,8 +8,13 @@ import { GMooncResetPasswordPage } from '../pages/auth/GMooncResetPasswordPage';
 import { GMooncLogoutPage } from '../pages/auth/GMooncLogoutPage';
 import { GMooncAppHomePage } from '../pages/app/GMooncAppHomePage';
 import { GMooncPermissionsPage } from '../pages/app/admin/GMooncPermissionsPage';
+import { GMooncAdminUsersPage } from '../pages/app/admin/GMooncAdminUsersPage';
+import { GMooncAdminAuthorizationsPage } from '../pages/app/admin/GMooncAdminAuthorizationsPage';
+import { GMooncAdminNotificationsPage } from '../pages/app/admin/GMooncAdminNotificationsPage';
 import { GMooncTechnicalMessagesPage } from '../pages/app/technical/GMooncTechnicalMessagesPage';
 import { GMooncCustomerMessagesPage } from '../pages/app/customer/GMooncCustomerMessagesPage';
+import { GMooncOfficeAccountPage } from '../pages/app/office/GMooncOfficeAccountPage';
+import { GMooncOfficeAboutPage } from '../pages/app/office/GMooncOfficeAboutPage';
 
 /**
  * Creates route objects for the gmoonc dashboard.
@@ -61,8 +66,20 @@ export function createGmooncRoutes(options?: { basePath?: string }): RouteObject
           element: <GMooncAppHomePage />
         },
         {
+          path: 'admin/users',
+          element: <GMooncAdminUsersPage />
+        },
+        {
           path: 'admin/permissions',
           element: <GMooncPermissionsPage />
+        },
+        {
+          path: 'admin/authorizations',
+          element: <GMooncAdminAuthorizationsPage />
+        },
+        {
+          path: 'admin/notifications',
+          element: <GMooncAdminNotificationsPage />
         },
         {
           path: 'technical/messages',
@@ -71,6 +88,14 @@ export function createGmooncRoutes(options?: { basePath?: string }): RouteObject
         {
           path: 'customer/messages',
           element: <GMooncCustomerMessagesPage />
+        },
+        {
+          path: 'office/account',
+          element: <GMooncOfficeAccountPage />
+        },
+        {
+          path: 'office/about',
+          element: <GMooncOfficeAboutPage />
         }
       ]
     }

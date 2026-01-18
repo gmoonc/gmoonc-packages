@@ -52,9 +52,11 @@ function normalizeRoutes(
 }
 
 /**
- * Helper to render RouteObject[] as <Route/> recursively
+ * Helper to render RouteObject[] as <Route/> recursively.
+ * Returns an array of Route elements (not wrapped in Fragment).
+ * This is safe to use directly inside <Routes>.
  */
-function renderRoutes(routes: RouteObject[]): React.ReactNode {
+function renderRoutes(routes: RouteObject[]): React.ReactElement[] {
   return routes.map((route, index) => {
     const key = route.path || route.index ? `route-${index}` : `route-${index}`;
     
@@ -85,17 +87,21 @@ function renderRoutes(routes: RouteObject[]): React.ReactNode {
  * Converts gmoonc routes (RouteObject[]) into Route components
  * for use inside Routes.
  * 
+ * IMPORTANT: Returns an array of Route elements directly (no Fragment).
+ * This is safe to use inside <Routes> from React Router v6.
+ * 
  * @example
  * ```tsx
  * <BrowserRouter>
  *   <Routes>
+ *     <Route path="/" element={<Home />} />
  *     <GmooncRoutes basePath="/app" />
- *     <Route path="/other" element={<OtherPage />} />
+ *     <Route path="*" element={<NotFound />} />
  *   </Routes>
  * </BrowserRouter>
  * ```
  */
-export function GmooncRoutes(props: GmooncRoutesProps): React.ReactElement {
+export function GmooncRoutes(props: GmooncRoutesProps): React.ReactElement[] {
   const { basePath = '/app', filter, map } = props;
   
   // Get routes from createGmooncRoutes
@@ -104,6 +110,6 @@ export function GmooncRoutes(props: GmooncRoutesProps): React.ReactElement {
   // Normalize routes (apply filter and map recursively)
   const normalizedRoutes = normalizeRoutes(routes, filter, map);
   
-  // Render as <Route/> components
-  return <>{renderRoutes(normalizedRoutes)}</>;
+  // Render as <Route/> components (returns array directly, no Fragment)
+  return renderRoutes(normalizedRoutes);
 }
