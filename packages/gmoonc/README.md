@@ -16,10 +16,28 @@ Run the installer in your React project root:
 npx gmoonc
 ```
 
-Or with options:
+Or skip confirmations (recommended):
 
 ```bash
-npx gmoonc --yes --base /app
+npx gmoonc -y
+```
+
+**Note for Windows/npm 11+:** If you encounter issues with `--yes`, use the short flag `-y` instead:
+
+```bash
+npx gmoonc -y
+```
+
+Or use the pass-through syntax:
+
+```bash
+npx gmoonc -- --yes
+```
+
+With custom base path:
+
+```bash
+npx gmoonc -y --base /dashboard
 ```
 
 ## What it does
@@ -31,7 +49,7 @@ npx gmoonc --yes --base /app
 
 ## Options
 
-- `--yes` / `-y`: Skip confirmations and install automatically
+- `-y`, `--yes`, `--auto`: Skip confirmations and install automatically (recommended: use `-y`)
 - `--base <path>`: Base path for dashboard routes (default: `/app`)
 - `--skip-router-patch`: Skip automatic router integration
 - `--dry-run`: Show what would be done without making changes

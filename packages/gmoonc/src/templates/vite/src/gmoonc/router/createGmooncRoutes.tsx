@@ -1,20 +1,21 @@
 import React from 'react';
 import { RouteObject } from 'react-router-dom';
-import { GmooncAppLayout } from '../../app/GMooncAppLayout';
-import { GMooncLoginPage } from '../../pages/auth/GMooncLoginPage';
-import { GMooncRegisterPage } from '../../pages/auth/GMooncRegisterPage';
-import { GMooncForgotPasswordPage } from '../../pages/auth/GMooncForgotPasswordPage';
-import { GMooncResetPasswordPage } from '../../pages/auth/GMooncResetPasswordPage';
-import { GMooncLogoutPage } from '../../pages/auth/GMooncLogoutPage';
-import { GMooncAppHomePage } from '../../pages/app/GMooncAppHomePage';
-import { GMooncPermissionsPage } from '../../pages/app/admin/GMooncPermissionsPage';
-import { GMooncAdminUsersPage } from '../../pages/app/admin/GMooncAdminUsersPage';
-import { GMooncAdminAuthorizationsPage } from '../../pages/app/admin/GMooncAdminAuthorizationsPage';
-import { GMooncAdminNotificationsPage } from '../../pages/app/admin/GMooncAdminNotificationsPage';
-import { GMooncTechnicalMessagesPage } from '../../pages/app/technical/GMooncTechnicalMessagesPage';
-import { GMooncCustomerMessagesPage } from '../../pages/app/customer/GMooncCustomerMessagesPage';
-import { GMooncOfficeAccountPage } from '../../pages/app/office/GMooncOfficeAccountPage';
-import { GMooncOfficeAboutPage } from '../../pages/app/office/GMooncOfficeAboutPage';
+import { GmooncAppLayout } from '../layout/GMooncAppLayout';
+import { GMooncLoginPage } from '../pages/auth/GMooncLoginPage';
+import { GMooncRegisterPage } from '../pages/auth/GMooncRegisterPage';
+import { GMooncForgotPasswordPage } from '../pages/auth/GMooncForgotPasswordPage';
+import { GMooncResetPasswordPage } from '../pages/auth/GMooncResetPasswordPage';
+import { GMooncLogoutPage } from '../pages/auth/GMooncLogoutPage';
+import { GMooncAppHomePage } from '../pages/app/GMooncAppHomePage';
+import { GMooncPermissionsPage } from '../pages/app/admin/GMooncPermissionsPage';
+import { GMooncAdminUsersPage } from '../pages/app/admin/GMooncAdminUsersPage';
+import { GMooncAdminAuthorizationsPage } from '../pages/app/admin/GMooncAdminAuthorizationsPage';
+import { GMooncAdminNotificationsPage } from '../pages/app/admin/GMooncAdminNotificationsPage';
+import { GMooncTechnicalMessagesPage } from '../pages/app/technical/GMooncTechnicalMessagesPage';
+import { GMooncCustomerMessagesPage } from '../pages/app/customer/GMooncCustomerMessagesPage';
+import { GMooncOfficeAccountPage } from '../pages/app/office/GMooncOfficeAccountPage';
+import { GMooncOfficeAboutPage } from '../pages/app/office/GMooncOfficeAboutPage';
+import { GMooncSessionProvider } from '../session/GMooncSessionContext';
 
 /**
  * Creates route objects for the gmoonc dashboard.
@@ -37,7 +38,11 @@ export function createGmooncRoutes(options?: { basePath?: string }): RouteObject
     // Auth routes (outside basePath, but still avoid "/" to be safe)
     {
       path: '/login',
-      element: <GMooncLoginPage />
+      element: (
+        <GMooncSessionProvider>
+          <GMooncLoginPage />
+        </GMooncSessionProvider>
+      )
     },
     {
       path: '/register',
@@ -53,7 +58,11 @@ export function createGmooncRoutes(options?: { basePath?: string }): RouteObject
     },
     {
       path: '/logout',
-      element: <GMooncLogoutPage />
+      element: (
+        <GMooncSessionProvider>
+          <GMooncLogoutPage />
+        </GMooncSessionProvider>
+      )
     },
     // Dashboard routes (always nested under basePath, never "/")
     {

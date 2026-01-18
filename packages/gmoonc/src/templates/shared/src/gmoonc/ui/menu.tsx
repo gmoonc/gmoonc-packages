@@ -389,31 +389,42 @@ export function GmooncMenu({
     };
 
     // Render main item link/button
-    const mainItemContent = item.path && renderLink ? (
+    // IMPORTANT: If item has submenu, always use button (never renderLink) to avoid navigation to non-existent routes
+    const mainItemContent = hasSubmenu ? (
+      // Item with submenu: always button (toggle only, no navigation)
+      <button
+        type="button"
+        className={`gmoonc-menu-link has-submenu ${isSubmenuOpen ? 'submenu-open' : ''} ${isItemActive ? 'active' : ''}`}
+        onClick={handleItemClick}
+      >
+        {item.icon && <span className="gmoonc-menu-icon">{item.icon}</span>}
+        <span className="gmoonc-menu-label">{item.label}</span>
+        <span className="gmoonc-submenu-arrow">
+          {isSubmenuOpen 
+            ? (item.collapseIcon || null)
+            : (item.expandIcon || null)
+          }
+        </span>
+      </button>
+    ) : item.path && renderLink ? (
+      // Item without submenu and with path: use renderLink
       renderLink({
         path: item.path,
         label: item.label,
         isActive: isItemActive,
         onClick: handleItemClick,
-        className: `gmoonc-menu-link ${hasSubmenu ? 'has-submenu' : ''} ${isSubmenuOpen ? 'submenu-open' : ''} ${isItemActive ? 'active' : ''}`
+        className: `gmoonc-menu-link ${isItemActive ? 'active' : ''}`
       })
     ) : (
+      // Item without submenu and without renderLink: use button
       <button
         type="button"
-        className={`gmoonc-menu-link ${hasSubmenu ? 'has-submenu' : ''} ${isSubmenuOpen ? 'submenu-open' : ''} ${isItemActive ? 'active' : ''}`}
+        className={`gmoonc-menu-link ${isItemActive ? 'active' : ''}`}
         onClick={handleItemClick}
-        disabled={!item.path && !hasSubmenu && !onNavigate}
+        disabled={!item.path && !onNavigate}
       >
         {item.icon && <span className="gmoonc-menu-icon">{item.icon}</span>}
         <span className="gmoonc-menu-label">{item.label}</span>
-        {hasSubmenu && (
-          <span className="gmoonc-submenu-arrow">
-            {isSubmenuOpen 
-              ? (item.collapseIcon || null)
-              : (item.expandIcon || null)
-            }
-          </span>
-        )}
       </button>
     );
 

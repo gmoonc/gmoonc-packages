@@ -81,6 +81,7 @@ function extractRouteComponents(appContent: string): {
 
 /**
  * Convert import path to relative path from AppRoutes.tsx location
+ * AppRoutes.tsx is in src/gmoonc/router/, so we need to convert paths from src/ to ../../pages/
  */
 function convertImportToRelative(importLine: string, appRoutesPath: string, appPath: string): string {
   // Extract the path from the import statement
@@ -92,28 +93,31 @@ function convertImportToRelative(importLine: string, appRoutesPath: string, appP
   
   const originalPath = pathMatch[1];
   
-  // If it's already a relative path, convert it
-  if (originalPath.startsWith('./') || originalPath.startsWith('../')) {
-    // Get directory of App.tsx (where the original import is from)
-    const appDir = appPath.substring(0, appPath.lastIndexOf('/'));
-    // Get directory of AppRoutes.tsx
-    const appRoutesDir = appRoutesPath.substring(0, appRoutesPath.lastIndexOf('/'));
-    
-    // Resolve the original path relative to appDir
-    const resolvedPath = join(appDir, originalPath);
-    
-    // Calculate relative path from appRoutesDir to resolvedPath
-    const relativePath = relative(appRoutesDir, resolvedPath);
-    
-    // Normalize the path (use forward slashes for imports)
-    const normalizedPath = relativePath.replace(/\\/g, '/');
-    const finalPath = normalizedPath.startsWith('.') ? normalizedPath : './' + normalizedPath;
-    
-    return importLine.replace(pathMatch[1], finalPath);
+  // If it's a node_modules import, return as-is
+  if (!originalPath.startsWith('./') && !originalPath.startsWith('../')) {
+    return importLine;
   }
   
-  // If it's an absolute path or node_modules import, return as-is
-  return importLine;
+  // Get directory of App.tsx (where the original import is from)
+  // Usually src/App.tsx, so appDir is src/
+  const appDir = appPath.substring(0, appPath.lastIndexOf('/'));
+  
+  // Resolve the original path relative to appDir
+  // Example: ./pages/Index from src/ becomes src/pages/Index
+  const resolvedPath = join(appDir, originalPath);
+  
+  // AppRoutes.tsx is in src/gmoonc/router/
+  // So from src/gmoonc/router/ to src/pages/Index is ../../pages/Index
+  const appRoutesDir = appRoutesPath.substring(0, appRoutesPath.lastIndexOf('/'));
+  
+  // Calculate relative path from appRoutesDir to resolvedPath
+  const relativePath = relative(appRoutesDir, resolvedPath);
+  
+  // Normalize the path (use forward slashes for imports)
+  const normalizedPath = relativePath.replace(/\\/g, '/');
+  const finalPath = normalizedPath.startsWith('.') ? normalizedPath : './' + normalizedPath;
+  
+  return importLine.replace(pathMatch[1], finalPath);
 }
 
 /**
@@ -145,7 +149,7 @@ function generateAppRoutes(
     routes.push(`    { path: "/", element: <${indexComponent} /> }`);
   }
   
-  routes.push(`    ...createGmooncRoutes({ basePath: "${basePath}" })`);
+  routes.push(`    ...createGmooncRoutes({ basePath })`);
   
   if (notFoundComponent) {
     routes.push(`    { path: "*", element: <${notFoundComponent} /> }`);
@@ -156,7 +160,8 @@ function generateAppRoutes(
     "import { createGmooncRoutes } from './createGmooncRoutes';"
   ];
 
-  // Convert imports to relative paths from AppRoutes.tsx location
+  // Convert imports to relative paths from AppRoutes.tsx location (src/gmoonc/router/)
+  // AppRoutes.tsx is in src/gmoonc/router/, so imports to src/pages/ should be ../../pages/
   if (indexImport) {
     const convertedImport = convertImportToRelative(indexImport, appRoutesPath, appPath);
     imports.push(convertedImport);
