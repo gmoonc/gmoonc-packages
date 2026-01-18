@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import type { MenuItem as CoreMenuItem } from '@gmoonc/core';
+import type { MenuItem as CoreMenuItem } from '../core/types';
 import './styles.css';
 
 /**
@@ -36,6 +36,8 @@ export interface GmooncMenuProps {
     label: string;
     isActive: boolean;
     onClick?: () => void;
+    className?: string;
+    children?: React.ReactNode;
   }) => React.ReactNode;
   /** Whether menu is open (for mobile/tablet) */
   isOpen?: boolean;
@@ -392,7 +394,8 @@ export function GmooncMenu({
         path: item.path,
         label: item.label,
         isActive: isItemActive,
-        onClick: handleItemClick
+        onClick: handleItemClick,
+        className: `gmoonc-menu-link ${hasSubmenu ? 'has-submenu' : ''} ${isSubmenuOpen ? 'submenu-open' : ''} ${isItemActive ? 'active' : ''}`
       })
     ) : (
       <button
@@ -439,7 +442,8 @@ export function GmooncMenu({
                 path: subItem.path,
                 label: subItem.label,
                 isActive: isSubActive,
-                onClick: handleSubItemClick
+                onClick: handleSubItemClick,
+                className: `gmoonc-submenu-link ${isSubActive ? 'active' : ''}`
               }) : (
                 <button
                   type="button"

@@ -1,4 +1,4 @@
-import { defineConfig } from '../core/core';
+import { defineConfig } from '../core/types';
 import { createDefaultMenu } from '../app/menu/defaultMenu';
 
 /**

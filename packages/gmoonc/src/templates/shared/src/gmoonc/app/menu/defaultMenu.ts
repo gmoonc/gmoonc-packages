@@ -1,4 +1,4 @@
-import { type MenuItem as CoreMenuItem } from '../../core/core';
+import { type MenuItem as CoreMenuItem } from '../../core/types';
 
 /**
  * Extended MenuItem interface with submenu support

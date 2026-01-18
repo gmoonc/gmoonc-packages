@@ -1,0 +1,101 @@
+/* 
+ * Goalmoon Ctrl (gmoonc) Theme Variables
+ * 
+ * This file contains CSS custom properties (variables) that define the visual theme
+ * of the gmoonc dashboard. You can customize these values to match your brand.
+ * 
+ * All variables are scoped under .gmoonc-root to avoid conflicts with your app.
+ */
+
+.gmoonc-root {
+  /* Colors - Background */
+  --gmoonc-color-bg: #293047;
+  --gmoonc-color-bg-light: #eaf0f5;
+  --gmoonc-color-bg-gradient-start: #eaf0f5;
+  --gmoonc-color-bg-gradient-end: #dbe2ea;
+  
+  /* Colors - Surface */
+  --gmoonc-color-surface: #374161;
+  --gmoonc-color-surface-2: #3F4A6E;
+  --gmoonc-color-surface-3: #6374AD;
+  --gmoonc-color-surface-light: #f8f9fa;
+  --gmoonc-color-surface-white: #ffffff;
+  
+  /* Colors - Text */
+  --gmoonc-color-text: #eaf0f5;
+  --gmoonc-color-text-primary: #374161;
+  --gmoonc-color-text-secondary: #6c757d;
+  --gmoonc-color-text-muted: #dbe2ea;
+  --gmoonc-color-text-white: #ffffff;
+  
+  /* Colors - Primary */
+  --gmoonc-color-primary: #879FED;
+  --gmoonc-color-primary-2: #6374AD;
+  --gmoonc-color-primary-dark: #374161;
+  
+  /* Colors - Accent */
+  --gmoonc-color-accent: #71b399;
+  
+  /* Colors - Borders */
+  --gmoonc-color-border: #dbe2ea;
+  --gmoonc-color-border-light: #e9ecef;
+  --gmoonc-color-border-dark: #1d2436;
+  
+  /* Colors - States */
+  --gmoonc-color-error: #dc2626;
+  --gmoonc-color-error-bg: #fef2f2;
+  --gmoonc-color-error-border: #fecaca;
+  --gmoonc-color-success: #166534;
+  --gmoonc-color-success-bg: #f0fdf4;
+  --gmoonc-color-success-border: #bbf7d0;
+  --gmoonc-color-disabled: #6c757d;
+  --gmoonc-color-disabled-bg: #f8f9fa;
+  
+  /* Spacing */
+  --gmoonc-gap: 12px;
+  --gmoonc-gap-sm: 8px;
+  --gmoonc-gap-md: 16px;
+  --gmoonc-gap-lg: 20px;
+  --gmoonc-gap-xl: 30px;
+  
+  /* Border Radius */
+  --gmoonc-radius: 12px;
+  --gmoonc-radius-sm: 8px;
+  --gmoonc-radius-md: 10px;
+  --gmoonc-radius-lg: 16px;
+  
+  /* Typography */
+  --gmoonc-font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --gmoonc-font-weight-title: 700;
+  --gmoonc-font-weight-heading: 600;
+  --gmoonc-font-weight-body: 400;
+  --gmoonc-font-weight-medium: 500;
+  
+  /* Font Sizes */
+  --gmoonc-font-size-xs: 12px;
+  --gmoonc-font-size-sm: 14px;
+  --gmoonc-font-size-base: 16px;
+  --gmoonc-font-size-lg: 18px;
+  --gmoonc-font-size-xl: 24px;
+  --gmoonc-font-size-2xl: 28px;
+  --gmoonc-font-size-3xl: 32px;
+  
+  /* Shadows */
+  --gmoonc-shadow-sm: 0 4px 6px rgba(55, 65, 97, 0.1);
+  --gmoonc-shadow-md: 0 4px 20px rgba(55, 65, 97, 0.1);
+  --gmoonc-shadow-lg: 0 8px 32px rgba(55, 65, 97, 0.15);
+  --gmoonc-shadow-header: 0 4px 20px rgba(55, 65, 97, 0.3);
+  --gmoonc-shadow-menu-header: 0 8px 16px rgba(0, 0, 0, 0.22);
+  
+  /* Transitions */
+  --gmoonc-transition: 0.3s ease;
+  --gmoonc-transition-fast: 0.2s ease;
+  
+  /* Z-index */
+  --gmoonc-z-header: 1000;
+  --gmoonc-z-profile: 1001;
+  --gmoonc-z-dropdown: 1002;
+  --gmoonc-z-hamburger: 1002;
+  --gmoonc-z-backdrop: 1050;
+  --gmoonc-z-menu: 1100;
+}

@@ -1,6 +1,6 @@
 {
   "name": "gmoonc",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Goalmoon Ctrl (gmoonc): Complete dashboard installer for React projects",
   "license": "MIT",
   "homepage": "https://gmoonc.com",
@@ -14,7 +14,7 @@
   },
   "type": "module",
   "bin": {
-    "gmoonc": "./dist/cli.cjs"
+    "gmoonc": "./dist/index.cjs"
   },
   "files": [
     "dist",
@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "sync:templates": "node scripts/sync-templates.mjs",
-    "build": "tsup src/cli/index.ts --format cjs --no-splitting --out-dir dist && node -e \"const fs=require('fs');const f='dist/cli.js';const cjs='dist/cli.cjs';if(fs.existsSync(f)){fs.renameSync(f,cjs);fs.writeFileSync(cjs,'#!/usr/bin/env node\\n'+fs.readFileSync(cjs))}\"",
+    "build": "tsup src/cli/index.ts --format cjs --no-splitting --out-dir dist && node -e \"const fs=require('fs');const path=require('path');const distDir='dist';const files=fs.readdirSync(distDir);const indexFile=files.find(f=>f.startsWith('index')&&f.endsWith('.js'));if(indexFile){const oldPath=path.join(distDir,indexFile);const newPath=path.join(distDir,'index.cjs');fs.renameSync(oldPath,newPath);const content=fs.readFileSync(newPath,'utf8');if(!content.startsWith('#!/usr/bin/env node')){fs.writeFileSync(newPath,'#!/usr/bin/env node\\n'+content)}}\"",
     "clean": "rimraf dist",
     "prepublishOnly": "npm run clean && npm run build",
     "postinstall": "node scripts/block-global-install.cjs"

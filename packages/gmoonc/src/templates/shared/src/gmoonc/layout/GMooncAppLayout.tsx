@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
-import { GmooncShell } from '../ui/ui';
+import { GmooncShell } from '../ui/shell';
 import { defaultConfig } from '../config/defaultConfig';
 import { GMooncSessionProvider, useGMooncSession } from '../session/GMooncSessionContext';
 import { GMooncUserProfile } from '../components/GMooncUserProfile';
@@ -24,33 +24,36 @@ function GMooncAppLayoutInner() {
   }, [navigate]);
 
   return (
-    <GmooncShell
-      config={defaultConfig}
-      roles={roles}
-      activePath={location.pathname}
-      onNavigate={(path) => navigate(path)}
-      headerRight={
-        <GMooncUserProfile
-          onAccount={handleAccount}
-          onAbout={handleAbout}
-          onLogoutRequest={handleLogout}
-        />
-      }
-      renderLink={({ path, label, isActive, onClick }) => (
-        <Link
-          to={path}
-          onClick={onClick}
-          style={{
-            textDecoration: isActive ? 'underline' : 'none',
-            color: 'inherit'
-          }}
-        >
-          {label}
-        </Link>
-      )}
-    >
-      <Outlet />
-    </GmooncShell>
+    <div className="gmoonc-root">
+      <GmooncShell
+        config={defaultConfig}
+        roles={roles}
+        activePath={location.pathname}
+        onNavigate={(path) => navigate(path)}
+        headerRight={
+          <GMooncUserProfile
+            onAccount={handleAccount}
+            onAbout={handleAbout}
+            onLogoutRequest={handleLogout}
+          />
+        }
+        renderLink={({ path, label, isActive, onClick, className, children }) => (
+          <Link
+            to={path}
+            onClick={onClick}
+            className={className}
+            style={{
+              textDecoration: isActive ? 'underline' : 'none',
+              color: 'inherit'
+            }}
+          >
+            {children || label}
+          </Link>
+        )}
+      >
+        <Outlet />
+      </GmooncShell>
+    </div>
   );
 }
 

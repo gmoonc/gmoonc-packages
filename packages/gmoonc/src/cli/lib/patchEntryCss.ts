@@ -8,10 +8,12 @@ export function patchEntryCss(entrypointPath: string, dryRun: boolean): { succes
 
   const content = readFile(entrypointPath);
   
-  // Check if CSS import already exists
-  if (content.includes('./gmoonc/styles/gmoonc.css') || 
-      content.includes('gmoonc/styles/gmoonc.css')) {
-    logSuccess('CSS import already exists');
+  // Check if CSS imports already exist
+  const hasThemeCss = content.includes('./gmoonc/styles/theme.css') || content.includes('gmoonc/styles/theme.css');
+  const hasGmooncCss = content.includes('./gmoonc/styles/gmoonc.css') || content.includes('gmoonc/styles/gmoonc.css');
+  
+  if (hasThemeCss && hasGmooncCss) {
+    logSuccess('CSS imports already exist');
     return { success: true, backupPath: null };
   }
 
@@ -20,6 +22,14 @@ export function patchEntryCss(entrypointPath: string, dryRun: boolean): { succes
   const imports = content.match(importRegex) || [];
   
   let newContent = content;
+  const cssImports: string[] = [];
+  
+  if (!hasThemeCss) {
+    cssImports.push('import "./gmoonc/styles/theme.css";');
+  }
+  if (!hasGmooncCss) {
+    cssImports.push('import "./gmoonc/styles/gmoonc.css";');
+  }
   
   if (imports.length > 0) {
     // Insert after the last import
@@ -29,11 +39,11 @@ export function patchEntryCss(entrypointPath: string, dryRun: boolean): { succes
     
     newContent = 
       content.slice(0, insertIndex) + 
-      '\nimport "./gmoonc/styles/gmoonc.css";' +
+      '\n' + cssImports.join('\n') +
       content.slice(insertIndex);
   } else {
     // No imports found, add at the top
-    newContent = 'import "./gmoonc/styles/gmoonc.css";\n' + content;
+    newContent = cssImports.join('\n') + '\n' + content;
   }
 
   const backupPath = writeFileSafe(entrypointPath, newContent);

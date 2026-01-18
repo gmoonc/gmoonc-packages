@@ -1,6 +1,6 @@
 import { readFile, writeFileSafe, ensureDirectoryExists } from './fs.js';
 import { existsSync } from 'fs';
-import { join } from 'path';
+import { join, relative } from 'path';
 import { logSuccess, logError, logInfo } from './logger.js';
 
 export interface PatchResult {
@@ -18,11 +18,11 @@ function extractRouteComponents(appContent: string): {
   indexComponent: string | null;
   notFoundComponent: string | null;
 } {
-  // Try to find <Route path="/" element={<Index />} />
+  // Try to find <Route path="/" element={<Index />} /> or <Route path="/" element={<Index/>} />
   const indexRouteMatch = appContent.match(/<Route\s+path=["']\/["']\s+element=\{<(\w+)\s*\/?>\}\s*\/?>/);
   const indexComponent = indexRouteMatch ? indexRouteMatch[1] : null;
 
-  // Try to find <Route path="*" element={<NotFound />} />
+  // Try to find <Route path="*" element={<NotFound />} /> or <Route path="*" element={<NotFound/>} />
   const notFoundRouteMatch = appContent.match(/<Route\s+path=["']\*["']\s+element=\{<(\w+)\s*\/?>\}\s*\/?>/);
   const notFoundComponent = notFoundRouteMatch ? notFoundRouteMatch[1] : null;
 
@@ -34,10 +34,23 @@ function extractRouteComponents(appContent: string): {
   
   if (indexComponent) {
     // Find import line that contains the component name
+    // Match patterns like: import Index from "./pages/Index";
+    // or: import { Index } from "./pages/Index";
     for (const line of lines) {
-      if (line.includes('import') && line.includes(indexComponent)) {
-        indexImport = line.trim();
-        break;
+      const trimmed = line.trim();
+      if (trimmed.startsWith('import')) {
+        // Check for default import: import Index from "..."
+        const defaultImportMatch = trimmed.match(/import\s+(\w+)\s+from\s+["']([^"']+)["']/);
+        if (defaultImportMatch && defaultImportMatch[1] === indexComponent) {
+          indexImport = trimmed;
+          break;
+        }
+        // Check for named import: import { Index } from "..."
+        const namedImportMatch = trimmed.match(/import\s+\{[^}]*\b(\w+)\b[^}]*\}\s+from\s+["']([^"']+)["']/);
+        if (namedImportMatch && namedImportMatch[1] === indexComponent) {
+          indexImport = trimmed;
+          break;
+        }
       }
     }
   }
@@ -45,14 +58,62 @@ function extractRouteComponents(appContent: string): {
   if (notFoundComponent) {
     // Find import line that contains the component name
     for (const line of lines) {
-      if (line.includes('import') && line.includes(notFoundComponent)) {
-        notFoundImport = line.trim();
-        break;
+      const trimmed = line.trim();
+      if (trimmed.startsWith('import')) {
+        // Check for default import
+        const defaultImportMatch = trimmed.match(/import\s+(\w+)\s+from\s+["']([^"']+)["']/);
+        if (defaultImportMatch && defaultImportMatch[1] === notFoundComponent) {
+          notFoundImport = trimmed;
+          break;
+        }
+        // Check for named import
+        const namedImportMatch = trimmed.match(/import\s+\{[^}]*\b(\w+)\b[^}]*\}\s+from\s+["']([^"']+)["']/);
+        if (namedImportMatch && namedImportMatch[1] === notFoundComponent) {
+          notFoundImport = trimmed;
+          break;
+        }
       }
     }
   }
 
   return { indexImport, notFoundImport, indexComponent, notFoundComponent };
+}
+
+/**
+ * Convert import path to relative path from AppRoutes.tsx location
+ */
+function convertImportToRelative(importLine: string, appRoutesPath: string, appPath: string): string {
+  // Extract the path from the import statement
+  // Match: import X from "path" or import { X } from "path"
+  const pathMatch = importLine.match(/from\s+["']([^"']+)["']/);
+  if (!pathMatch) {
+    return importLine; // Return as-is if no path found
+  }
+  
+  const originalPath = pathMatch[1];
+  
+  // If it's already a relative path, convert it
+  if (originalPath.startsWith('./') || originalPath.startsWith('../')) {
+    // Get directory of App.tsx (where the original import is from)
+    const appDir = appPath.substring(0, appPath.lastIndexOf('/'));
+    // Get directory of AppRoutes.tsx
+    const appRoutesDir = appRoutesPath.substring(0, appRoutesPath.lastIndexOf('/'));
+    
+    // Resolve the original path relative to appDir
+    const resolvedPath = join(appDir, originalPath);
+    
+    // Calculate relative path from appRoutesDir to resolvedPath
+    const relativePath = relative(appRoutesDir, resolvedPath);
+    
+    // Normalize the path (use forward slashes for imports)
+    const normalizedPath = relativePath.replace(/\\/g, '/');
+    const finalPath = normalizedPath.startsWith('.') ? normalizedPath : './' + normalizedPath;
+    
+    return importLine.replace(pathMatch[1], finalPath);
+  }
+  
+  // If it's an absolute path or node_modules import, return as-is
+  return importLine;
 }
 
 /**
@@ -65,6 +126,7 @@ function generateAppRoutes(
   notFoundImport: string | null,
   indexComponent: string | null,
   notFoundComponent: string | null,
+  appPath: string,
   dryRun: boolean
 ): { success: boolean } {
   const appRoutesPath = join(consumerDir, 'src/gmoonc/router/AppRoutes.tsx');
@@ -90,21 +152,24 @@ function generateAppRoutes(
   }
 
   const imports: string[] = [
-    "import { useRoutes } from 'react-router-dom';",
+    "import { useRoutes, type RouteObject } from 'react-router-dom';",
     "import { createGmooncRoutes } from './createGmooncRoutes';"
   ];
 
+  // Convert imports to relative paths from AppRoutes.tsx location
   if (indexImport) {
-    imports.push(indexImport);
+    const convertedImport = convertImportToRelative(indexImport, appRoutesPath, appPath);
+    imports.push(convertedImport);
   }
   if (notFoundImport) {
-    imports.push(notFoundImport);
+    const convertedImport = convertImportToRelative(notFoundImport, appRoutesPath, appPath);
+    imports.push(convertedImport);
   }
 
   const content = `${imports.join('\n')}
 
 export function GMooncAppRoutes({ basePath = "${basePath}" }: { basePath?: string }) {
-  const allRoutes = [
+  const allRoutes: RouteObject[] = [
 ${routes.join(',\n')}
   ];
 
@@ -183,15 +248,70 @@ export function patchBrowserRouter(
   }
 
   // Generate AppRoutes.tsx
-  generateAppRoutes(consumerDir, basePath, indexImport, notFoundImport, indexComponent, notFoundComponent, false);
+  generateAppRoutes(consumerDir, basePath, indexImport, notFoundImport, indexComponent, notFoundComponent, appPath, false);
 
   // Patch App.tsx
   const backupPath = writeFileSafe(appPath, ''); // Will be overwritten below
   
+  const lines = appContent.split('\n');
+  
+  // Ensure BrowserRouter is imported
+  let hasBrowserRouterImport = false;
+  let reactRouterImportIndex = -1;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.includes('from') && line.includes('react-router-dom')) {
+      reactRouterImportIndex = i;
+      if (line.includes('BrowserRouter')) {
+        hasBrowserRouterImport = true;
+      }
+    }
+  }
+  
+  // Add or update BrowserRouter import
+  if (!hasBrowserRouterImport) {
+    if (reactRouterImportIndex >= 0) {
+      // Update existing react-router-dom import to include BrowserRouter
+      const existingLine = lines[reactRouterImportIndex];
+      // Check if it's a named import
+      if (existingLine.includes('{') && existingLine.includes('}')) {
+        // Add BrowserRouter to the named imports
+        const updatedLine = existingLine.replace(/\{([^}]+)\}/, (match, imports) => {
+          const importList = imports.split(',').map((s: string) => s.trim());
+          if (!importList.includes('BrowserRouter')) {
+            importList.push('BrowserRouter');
+          }
+          return `{ ${importList.join(', ')} }`;
+        });
+        lines[reactRouterImportIndex] = updatedLine;
+      } else {
+        // Default import, add named import for BrowserRouter
+        lines.splice(reactRouterImportIndex + 1, 0, `import { BrowserRouter } from "react-router-dom";`);
+      }
+    } else {
+      // No react-router-dom import, add it
+      const importLine = `import { BrowserRouter } from "react-router-dom";`;
+      let lastImportIndex = -1;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.startsWith('import ') || line.startsWith('import{') || line.startsWith('import\t')) {
+          lastImportIndex = i;
+        } else if (line && lastImportIndex >= 0 && !line.startsWith('//') && !line.startsWith('/*')) {
+          break;
+        }
+      }
+      if (lastImportIndex >= 0) {
+        lines.splice(lastImportIndex + 1, 0, importLine);
+      } else {
+        lines.unshift(importLine);
+      }
+    }
+  }
+  
   // Add import for GMooncAppRoutes
   const importLine = `import { GMooncAppRoutes } from "./gmoonc/router/AppRoutes";`;
   
-  const lines = appContent.split('\n');
   let lastImportIndex = -1;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();

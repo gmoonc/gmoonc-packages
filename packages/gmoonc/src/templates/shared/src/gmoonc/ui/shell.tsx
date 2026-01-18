@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { GmooncConfig } from '@gmoonc/core';
+import type { GmooncConfig } from '../core/types';
 import { GmooncHeader } from './header';
 import { GmooncSidebar } from './sidebar';
 import { GmooncMenu, type GmooncMenuItem } from './menu';
