@@ -1,6 +1,6 @@
 {
   "name": "gmoonc",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Goalmoon Ctrl (gmoonc): Complete dashboard installer for React projects",
   "license": "MIT",
   "homepage": "https://gmoonc.com",
@@ -14,7 +14,7 @@
   },
   "type": "module",
   "bin": {
-    "gmoonc": "./dist/index.cjs"
+    "gmoonc": "dist/index.cjs"
   },
   "files": [
     "dist",
