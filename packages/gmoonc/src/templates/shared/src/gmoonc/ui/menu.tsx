@@ -218,11 +218,21 @@ export function GmooncMenu({
     }
 
     // Logo navigates to basePath (default /app)
-    if (onNavigate) {
+    // onLogoClick from shell already handles navigation, so we don't need to navigate here
+    // But if onLogoClick is not provided, fallback to inferring from menu items
+    if (!onLogoClick && onNavigate) {
       // Try to find basePath from first menu item, or default to /app
       const firstItem = items.find(item => item.path);
-      const basePath = firstItem?.path?.replace(/\/[^/]+$/, '') || '/app';
-      onNavigate(basePath);
+      if (firstItem?.path) {
+        const match = firstItem.path.match(/^(\/[^/]+)/);
+        if (match) {
+          const basePath = match[1];
+          const normalizedBasePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+          onNavigate(normalizedBasePath);
+          return;
+        }
+      }
+      onNavigate('/app');
     }
   }, [isOpen, onLogoClick, onToggle, onNavigate, items]);
 
@@ -499,7 +509,18 @@ export function GmooncMenu({
           <div className="gmoonc-menu-logo-container">
             {renderLink && logoUrl ? (
               renderLink({
-                path: items.find(item => item.path)?.path?.replace(/\/[^/]+$/, '') || '/app',
+                path: (() => {
+                  // Extract basePath from first menu item
+                  const firstItem = items.find(item => item.path);
+                  if (firstItem?.path) {
+                    const match = firstItem.path.match(/^(\/[^/]+)/);
+                    if (match) {
+                      const basePath = match[1];
+                      return basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+                    }
+                  }
+                  return '/app';
+                })(),
                 label: logoAlt,
                 isActive: false,
                 onClick: handleLogoClick,

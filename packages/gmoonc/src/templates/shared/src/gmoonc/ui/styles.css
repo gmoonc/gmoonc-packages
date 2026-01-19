@@ -145,7 +145,7 @@
   width: 100%;
   min-height: 44px;
   padding: 0.8rem 1.25rem 0.8rem 2.5rem;
-  color: var(--gmoonc-surface-text, #374161);
+  color: var(--gmoonc-surface-text, #374161) !important;
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   font-size: 0.9rem;
@@ -166,12 +166,12 @@
 
 .gmoonc-submenu-link:hover {
   background-color: var(--gmoonc-sidebar-hover-bg, rgba(219, 226, 234, 0.5));
-  color: var(--gmoonc-surface-text, #374161);
+  color: var(--gmoonc-surface-text, #374161) !important;
 }
 
 .gmoonc-submenu-link span:not(.gmoonc-menu-icon) {
   flex: 1;
-  color: inherit;
+  color: inherit !important;
 }
 
 .gmoonc-submenu-link:focus-visible {
@@ -182,7 +182,7 @@
 
 .gmoonc-submenu-link.active {
   background-color: var(--gmoonc-sidebar-active-bg, #dbe2ea);
-  color: var(--gmoonc-surface-text, #374161);
+  color: var(--gmoonc-surface-text, #374161) !important;
   font-weight: 600;
   border-left-color: var(--gmoonc-color-text-primary, #374161);
   box-shadow: inset 0 0 0 1px rgba(55, 65, 97, 0.12);

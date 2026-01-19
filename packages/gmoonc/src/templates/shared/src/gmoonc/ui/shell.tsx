@@ -72,10 +72,21 @@ export function GmooncShell({
   const handleLogoClick = useCallback(() => {
     if (onNavigate) {
       // Navigate to basePath (default /app)
-      const basePath = config.menu && Array.isArray(config.menu) && config.menu.length > 0
-        ? (config.menu[0] as any).path?.replace(/\/[^/]+$/, '') || '/app'
-        : '/app';
-      onNavigate(basePath);
+      // Try to infer from first menu item path, or use /app as default
+      let basePath = '/app';
+      if (config.menu && Array.isArray(config.menu) && config.menu.length > 0) {
+        const firstItem = config.menu[0] as any;
+        if (firstItem.path) {
+          // Extract basePath from first item (e.g., /app/admin/users -> /app)
+          const match = firstItem.path.match(/^(\/[^/]+)/);
+          if (match) {
+            basePath = match[1];
+          }
+        }
+      }
+      // Normalize: remove trailing slash if present
+      const normalizedBasePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+      onNavigate(normalizedBasePath);
     }
   }, [onNavigate, config]);
 

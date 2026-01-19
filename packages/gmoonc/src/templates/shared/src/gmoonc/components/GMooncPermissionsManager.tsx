@@ -708,12 +708,12 @@ export function GMooncPermissionsManager() {
 
       {/* Modal para Nova Role */}
       {showNewRoleModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-            <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>Create New Role</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style={{ fontFamily: 'var(--gmoonc-font-family)' }}>
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl" style={{ fontFamily: 'var(--gmoonc-font-family)' }}>
+            <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--gmoonc-color-text-primary, #374161)', fontFamily: 'var(--gmoonc-font-family)' }}>Create New Role</h2>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)', fontFamily: 'var(--gmoonc-font-family)' }}>
                 Role Name *
               </label>
               <input
@@ -721,20 +721,20 @@ export function GMooncPermissionsManager() {
                 value={newRoleName}
                 onChange={(e) => setNewRoleName(e.target.value)}
                 className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#71b399] transition-all"
-                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}
+                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)', fontFamily: 'var(--gmoonc-font-family)', color: 'var(--gmoonc-color-text-primary, #374161)' }}
                 placeholder="e.g., manager, supervisor"
               />
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)', fontFamily: 'var(--gmoonc-font-family)' }}>
                 Description
               </label>
               <textarea
                 value={newRoleDescription}
                 onChange={(e) => setNewRoleDescription(e.target.value)}
                 className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}
+                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)', fontFamily: 'var(--gmoonc-font-family)', color: 'var(--gmoonc-color-text-primary, #374161)' }}
                 rows={3}
                 placeholder="Description of this role's function"
               />
@@ -748,16 +748,16 @@ export function GMooncPermissionsManager() {
                   setNewRoleDescription('');
                 }}
                 className="flex-1 px-4 py-2.5 rounded-lg border transition-all"
-                style={{ color: '#6374AD', borderColor: '#dbe2ea' }}
+                style={{ color: 'var(--gmoonc-color-primary-2, #6374AD)', borderColor: 'var(--gmoonc-color-border, #dbe2ea)', fontFamily: 'var(--gmoonc-font-family)' }}
               >
                 Cancel
               </button>
               <button
                 onClick={createNewRole}
                 className="flex-1 px-4 py-2.5 rounded-lg text-white font-semibold transition-all"
-                style={{ backgroundColor: '#71b399' }}
+                style={{ backgroundColor: 'var(--gmoonc-color-accent, #71b399)', fontFamily: 'var(--gmoonc-font-family)' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5fa086'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#71b399'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--gmoonc-color-accent, #71b399)'}
               >
                 Create
               </button>
@@ -768,9 +768,9 @@ export function GMooncPermissionsManager() {
 
       {/* Modal para Editar Role */}
       {showEditRoleModal && editingRole && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-            <h2 className="text-xl font-bold mb-6" style={{ color: '#374161' }}>Edit Role</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style={{ fontFamily: 'var(--gmoonc-font-family)' }}>
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl" style={{ fontFamily: 'var(--gmoonc-font-family)' }}>
+            <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--gmoonc-color-text-primary, #374161)', fontFamily: 'var(--gmoonc-font-family)' }}>Edit Role</h2>
 
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>
@@ -781,11 +781,11 @@ export function GMooncPermissionsManager() {
                 value={editingRole.name}
                 onChange={(e) => setEditingRole({ ...editingRole, name: e.target.value })}
                 className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}
+                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)', fontFamily: 'var(--gmoonc-font-family)', color: 'var(--gmoonc-color-text-primary, #374161)' }}
                 placeholder="e.g., manager, supervisor"
                 maxLength={50}
               />
-              <p className="text-xs mt-1" style={{ color: '#879FED' }}>
+              <p className="text-xs mt-1" style={{ color: 'var(--gmoonc-color-primary, #879FED)', fontFamily: 'var(--gmoonc-font-family)' }}>
                 Maximum 50 characters
               </p>
             </div>
@@ -798,12 +798,12 @@ export function GMooncPermissionsManager() {
                 value={editingRole.description || ''}
                 onChange={(e) => setEditingRole({ ...editingRole, description: e.target.value })}
                 className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}
+                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)', fontFamily: 'var(--gmoonc-font-family)', color: 'var(--gmoonc-color-text-primary, #374161)' }}
                 rows={3}
                 placeholder="Description of this role's function"
                 maxLength={200}
               />
-              <p className="text-xs mt-1" style={{ color: '#879FED' }}>
+              <p className="text-xs mt-1" style={{ color: 'var(--gmoonc-color-primary, #879FED)', fontFamily: 'var(--gmoonc-font-family)' }}>
                 Maximum 200 characters
               </p>
             </div>
@@ -815,7 +815,7 @@ export function GMooncPermissionsManager() {
                   setEditingRole(null);
                 }}
                 className="flex-1 px-4 py-2.5 rounded-lg border transition-all"
-                style={{ color: '#6374AD', borderColor: '#dbe2ea' }}
+                style={{ color: 'var(--gmoonc-color-primary-2, #6374AD)', borderColor: 'var(--gmoonc-color-border, #dbe2ea)', fontFamily: 'var(--gmoonc-font-family)' }}
               >
                 Cancel
               </button>
@@ -823,9 +823,9 @@ export function GMooncPermissionsManager() {
                 onClick={saveRoleEdit}
                 disabled={!editingRole.name.trim()}
                 className="flex-1 px-4 py-2.5 rounded-lg text-white font-semibold transition-all disabled:opacity-50"
-                style={{ backgroundColor: '#6374AD' }}
+                style={{ backgroundColor: 'var(--gmoonc-color-primary-2, #6374AD)', fontFamily: 'var(--gmoonc-font-family)' }}
                 onMouseEnter={(e) => !editingRole.name.trim() ? null : e.currentTarget.style.backgroundColor = '#4f5d8f'}
-                onMouseLeave={(e) => !editingRole.name.trim() ? null : e.currentTarget.style.backgroundColor = '#6374AD'}
+                onMouseLeave={(e) => !editingRole.name.trim() ? null : e.currentTarget.style.backgroundColor = 'var(--gmoonc-color-primary-2, #6374AD)'}
               >
                 ✏️ Save
               </button>

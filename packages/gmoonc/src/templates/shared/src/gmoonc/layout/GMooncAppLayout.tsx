@@ -10,22 +10,41 @@ function GMooncAppLayoutInner() {
   const navigate = useNavigate();
   const { roles, logout } = useGMooncSession();
 
+  // Determine basePath from current location
+  // If path is /app/..., basePath is /app
+  // If path is /dashboard/..., basePath is /dashboard
+  const getBasePath = useCallback(() => {
+    const path = location.pathname;
+    // Match pattern: /app, /dashboard, etc. (first segment after /)
+    const match = path.match(/^\/([^/]+)/);
+    if (match && match[1] !== 'login' && match[1] !== 'register' && match[1] !== 'forgot-password' && match[1] !== 'reset-password' && match[1] !== 'logout') {
+      return `/${match[1]}`;
+    }
+    // Default to /app
+    return '/app';
+  }, [location.pathname]);
+
   const handleLogout = useCallback(async () => {
     await logout();
     navigate('/login');
   }, [logout, navigate]);
 
   const handleAccount = useCallback(() => {
-    navigate('/app/office/account');
-  }, [navigate]);
+    const basePath = getBasePath();
+    navigate(`${basePath}/office/account`);
+  }, [navigate, getBasePath]);
 
   const handleAbout = useCallback(() => {
-    navigate('/app/office/about');
-  }, [navigate]);
+    const basePath = getBasePath();
+    navigate(`${basePath}/office/about`);
+  }, [navigate, getBasePath]);
 
   const handleLogoClick = useCallback(() => {
-    navigate('/app');
-  }, [navigate]);
+    const basePath = getBasePath();
+    // Normalize: remove trailing slash if present
+    const normalizedBasePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+    navigate(normalizedBasePath);
+  }, [navigate, getBasePath]);
 
   return (
     <div className="gmoonc-root">

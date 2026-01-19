@@ -24,13 +24,14 @@ export function GMooncOfficeAccountPage() {
             <h3 style={{
               fontSize: '20px',
               fontWeight: 600,
-              color: '#374161',
+              color: 'var(--gmoonc-color-text-primary, #374161)',
               marginBottom: '24px',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px'
+              gap: '12px',
+              fontFamily: 'var(--gmoonc-font-family)'
             }}>
-              <User size={24} style={{ color: '#6374AD' }} />
+              <User size={24} style={{ color: 'var(--gmoonc-color-primary-2, #6374AD)' }} />
               Profile Information
             </h3>
 
@@ -60,19 +61,21 @@ export function GMooncOfficeAccountPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      color: '#374161',
-                      marginBottom: '4px'
-                    }}>
-                      {user.name || 'No name'}
-                    </div>
-                    <div style={{
-                      fontSize: '14px',
-                      color: '#6374AD'
-                    }}>
-                      {user.email}
-                    </div>
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    color: 'var(--gmoonc-color-text-primary, #374161)',
+                    marginBottom: '4px',
+                    fontFamily: 'var(--gmoonc-font-family)'
+                  }}>
+                    {user.name || 'No name'}
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: 'var(--gmoonc-color-primary-2, #6374AD)',
+                    fontFamily: 'var(--gmoonc-font-family)'
+                  }}>
+                    {user.email}
+                  </div>
                   </div>
                 </div>
 
@@ -98,29 +101,30 @@ export function GMooncOfficeAccountPage() {
                       <Mail size={16} />
                       <span style={{ fontWeight: 500 }}>Email</span>
                     </div>
-                    <div style={{ color: '#374161', fontSize: '16px' }}>
+                    <div style={{ color: 'var(--gmoonc-color-text-primary, #374161)', fontSize: '16px', fontFamily: 'var(--gmoonc-font-family)' }}>
                       {user.email}
                     </div>
                   </div>
 
                   <div style={{
                     padding: '16px',
-                    backgroundColor: '#f8f9fa',
+                    backgroundColor: 'var(--gmoonc-color-surface-light, #f8f9fa)',
                     borderRadius: '8px',
-                    border: '1px solid #e9ecef'
+                    border: '1px solid var(--gmoonc-color-border-light, #e9ecef)'
                   }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
                       marginBottom: '8px',
-                      color: '#6374AD',
-                      fontSize: '14px'
+                      color: 'var(--gmoonc-color-primary-2, #6374AD)',
+                      fontSize: '14px',
+                      fontFamily: 'var(--gmoonc-font-family)'
                     }}>
                       <User size={16} />
                       <span style={{ fontWeight: 500 }}>Role</span>
                     </div>
-                    <div style={{ color: '#374161', fontSize: '16px' }}>
+                    <div style={{ color: 'var(--gmoonc-color-text-primary, #374161)', fontSize: '16px', fontFamily: 'var(--gmoonc-font-family)' }}>
                       {user.role || 'No role assigned'}
                     </div>
                   </div>
@@ -148,15 +152,17 @@ export function GMooncOfficeAccountPage() {
             <h3 style={{
               fontSize: '20px',
               fontWeight: 600,
-              color: '#374161',
-              marginBottom: '16px'
+              color: 'var(--gmoonc-color-text-primary, #374161)',
+              marginBottom: '16px',
+              fontFamily: 'var(--gmoonc-font-family)'
             }}>
               Account Settings
             </h3>
             <p style={{
-              color: '#6374AD',
+              color: 'var(--gmoonc-color-primary-2, #6374AD)',
               fontSize: '14px',
-              lineHeight: '1.6'
+              lineHeight: '1.6',
+              fontFamily: 'var(--gmoonc-font-family)'
             }}>
               Additional account settings and preferences will be available here in a future update.
             </p>
