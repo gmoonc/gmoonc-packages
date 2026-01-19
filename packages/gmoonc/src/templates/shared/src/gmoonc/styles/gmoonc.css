@@ -1,3 +1,6 @@
+/* Import Montserrat font from Google Fonts (ported from sicoop-app) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
 /* App-specific styles (ported from legacy sicoop-app) */
 
 /* Auth pages */
@@ -25,15 +28,15 @@
 }
 
 .gmoonc-auth-header h1 {
-  color: #374161;
+  color: var(--gmoonc-color-text-primary);
   font-size: 28px;
   font-weight: bold;
   margin: 0 0 10px 0;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
 }
 
 .gmoonc-auth-header p {
-  color: #6c757d;
+  color: var(--gmoonc-color-text-secondary);
   font-size: 16px;
   margin: 0;
 }
@@ -70,10 +73,10 @@
 
 .gmoonc-form-group label {
   display: block;
-  color: #374161;
+  color: var(--gmoonc-color-text-primary);
   font-weight: 600;
   margin-bottom: 8px;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
 }
 
 .gmoonc-form-group input,
@@ -84,28 +87,28 @@
   border-radius: 8px;
   font-size: 16px;
   transition: border-color 0.3s ease;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
   background-color: white;
-  color: #374161;
+  color: var(--gmoonc-color-text-primary);
   box-sizing: border-box;
 }
 
 .gmoonc-form-group input::placeholder {
-  color: #879FED;
+  color: var(--gmoonc-color-primary);
   opacity: 0.7;
 }
 
 .gmoonc-form-group input:focus,
 .gmoonc-form-group select:focus {
   outline: none;
-  border-color: #6374AD;
+  border-color: var(--gmoonc-color-primary-2);
   background-color: white;
-  color: #374161;
+  color: var(--gmoonc-color-text-primary);
 }
 
 .gmoonc-form-group input:hover,
 .gmoonc-form-group select:hover {
-  border-color: #879FED;
+  border-color: var(--gmoonc-color-primary);
   background-color: #f8f9fa;
 }
 
@@ -113,7 +116,7 @@
 .gmoonc-form-group select:disabled {
   background-color: #f8f9fa;
   cursor: not-allowed;
-  color: #6c757d;
+  color: var(--gmoonc-color-text-secondary);
   border-color: #dee2e6;
 }
 
@@ -128,7 +131,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
   margin-bottom: 20px;
 }
 
@@ -149,7 +152,7 @@
 }
 
 .gmoonc-auth-link {
-  color: #6374AD;
+  color: var(--gmoonc-link);
   text-decoration: none;
   font-size: 14px;
   transition: color 0.3s ease;
@@ -158,7 +161,7 @@
 }
 
 .gmoonc-auth-link:hover {
-  color: #374161;
+  color: var(--gmoonc-color-text-primary);
   text-decoration: underline;
 }
 
@@ -179,10 +182,10 @@
 
 .gmoonc-content-header h2 {
   margin: 0;
-  color: #374161;
+  color: var(--gmoonc-color-text-primary);
   font-size: 24px;
   font-weight: 600;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
 }
 
 .gmoonc-content-body {
@@ -198,15 +201,15 @@
 }
 
 .gmoonc-welcome-content h2 {
-  color: #374161;
+  color: var(--gmoonc-color-text-primary);
   font-size: 32px;
   margin-bottom: 20px;
   font-weight: bold;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
 }
 
 .gmoonc-welcome-content p {
-  color: #6c757d;
+  color: var(--gmoonc-color-text-secondary);
   font-size: 18px;
   margin-bottom: 30px;
   line-height: 1.6;
@@ -332,24 +335,24 @@
 .user-name {
   font-size: 16px;
   font-weight: 600;
-  color: #374161;
+  color: var(--gmoonc-color-text-primary);
   margin-bottom: 4px;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
 }
 
 .user-email {
   font-size: 14px;
   color: #6c757d;
   margin-bottom: 4px;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
 }
 
 .user-role {
   font-size: 12px;
-  color: #879FED;
+  color: var(--gmoonc-color-primary);
   text-transform: capitalize;
   font-weight: 500;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
 }
 
 .dropdown-divider {
@@ -373,9 +376,9 @@
   align-items: center;
   gap: 12px;
   font-size: 14px;
-  color: #374161;
+  color: var(--gmoonc-color-text-primary, #374161);
   transition: background-color 0.2s ease;
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: var(--gmoonc-font-family);
 }
 
 .dropdown-option:hover {

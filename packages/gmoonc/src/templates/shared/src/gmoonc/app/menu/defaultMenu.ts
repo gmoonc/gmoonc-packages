@@ -1,10 +1,15 @@
 import { type MenuItem as CoreMenuItem } from '../../core/types';
+import { Home, Users, Shield, MessageSquare, Settings, ChevronRight, ChevronDown } from 'lucide-react';
+import type React from 'react';
 
 /**
  * Extended MenuItem interface with submenu support
  */
 export interface MenuItemWithSubmenu extends CoreMenuItem {
   submenu?: MenuItemWithSubmenu[];
+  icon?: React.ReactNode;
+  expandIcon?: React.ReactNode;
+  collapseIcon?: React.ReactNode;
 }
 
 /**
@@ -25,37 +30,45 @@ export function createDefaultMenu(basePath: string = '/app'): MenuItemWithSubmen
       id: 'home',
       label: 'Home',
       path: basePath,
-      roles: []
+      roles: [],
+      icon: <Home size={18} strokeWidth={2.5} />
     },
     {
       id: 'admin',
       label: 'Admin',
       path: `${basePath}/admin`,
       roles: ['admin'],
+      icon: <Shield size={18} strokeWidth={2.5} />,
+      expandIcon: <ChevronRight size={16} strokeWidth={2.5} />,
+      collapseIcon: <ChevronDown size={16} strokeWidth={2.5} />,
       submenu: [
         {
           id: 'admin-users',
           label: 'Users',
           path: `${basePath}/admin/users`,
-          roles: ['admin']
+          roles: ['admin'],
+          icon: <Users size={16} strokeWidth={2.5} />
         },
         {
           id: 'admin-permissions',
           label: 'Permissions',
           path: `${basePath}/admin/permissions`,
-          roles: ['admin']
+          roles: ['admin'],
+          icon: <Shield size={16} strokeWidth={2.5} />
         },
         {
           id: 'admin-authorizations',
           label: 'Authorization Management',
           path: `${basePath}/admin/authorizations`,
-          roles: ['admin']
+          roles: ['admin'],
+          icon: <Settings size={16} strokeWidth={2.5} />
         },
         {
           id: 'admin-notifications',
           label: 'Notification Management',
           path: `${basePath}/admin/notifications`,
-          roles: ['admin']
+          roles: ['admin'],
+          icon: <MessageSquare size={16} strokeWidth={2.5} />
         }
       ]
     },
@@ -64,12 +77,16 @@ export function createDefaultMenu(basePath: string = '/app'): MenuItemWithSubmen
       label: 'Technical',
       path: `${basePath}/technical`,
       roles: [],
+      icon: <Settings size={18} strokeWidth={2.5} />,
+      expandIcon: <ChevronRight size={16} strokeWidth={2.5} />,
+      collapseIcon: <ChevronDown size={16} strokeWidth={2.5} />,
       submenu: [
         {
           id: 'technical-messages',
           label: 'Messages',
           path: `${basePath}/technical/messages`,
-          roles: []
+          roles: [],
+          icon: <MessageSquare size={16} strokeWidth={2.5} />
         }
       ]
     },
@@ -78,12 +95,16 @@ export function createDefaultMenu(basePath: string = '/app'): MenuItemWithSubmen
       label: 'Customer',
       path: `${basePath}/customer`,
       roles: [],
+      icon: <Users size={18} strokeWidth={2.5} />,
+      expandIcon: <ChevronRight size={16} strokeWidth={2.5} />,
+      collapseIcon: <ChevronDown size={16} strokeWidth={2.5} />,
       submenu: [
         {
           id: 'customer-messages',
           label: 'Messages',
           path: `${basePath}/customer/messages`,
-          roles: []
+          roles: [],
+          icon: <MessageSquare size={16} strokeWidth={2.5} />
         }
       ]
     }

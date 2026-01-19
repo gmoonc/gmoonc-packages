@@ -28,6 +28,14 @@
   --gmoonc-color-text-muted: #dbe2ea;
   --gmoonc-color-text-white: #ffffff;
   
+  /* Colors - Text (Menu & Header specific) */
+  --gmoonc-sidebar-text: #ffffff;
+  --gmoonc-sidebar-text-active: #293047;
+  --gmoonc-sidebar-muted: #ffffff;
+  --gmoonc-header-text: #ffffff;
+  --gmoonc-surface-text: #374161;
+  --gmoonc-link: #6374AD;
+  
   /* Colors - Primary */
   --gmoonc-color-primary: #879FED;
   --gmoonc-color-primary-2: #6374AD;
