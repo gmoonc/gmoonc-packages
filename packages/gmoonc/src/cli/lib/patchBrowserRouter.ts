@@ -286,18 +286,9 @@ function generateAppRoutes(
 
   ensureDirectoryExists(appRoutesPath);
 
-  // Build the routes array
-  const routeElements: string[] = [];
-  
-  // Add consumer routes (Index and NotFound)
-  for (const route of routes) {
-    if (route.path === '/' || route.path === '*') {
-      routeElements.push(`    { path: "${route.path}", element: <${route.componentName} /> }`);
-    }
-  }
-  
-  // Add gmoonc routes
-  routeElements.push(`    ...createGmooncRoutes({ basePath })`);
+  // Find Index and NotFound routes first (used for both routes array and imports)
+  const indexRoute = routes.find(r => r.path === '/');
+  const notFoundRoute = routes.find(r => r.path === '*');
 
   // Build imports
   const imports: string[] = [
@@ -306,19 +297,45 @@ function generateAppRoutes(
   ];
 
   // Add imports for consumer components with correct relative paths
-  for (const route of routes) {
-    if ((route.path === '/' || route.path === '*') && route.import) {
-      const convertedImport = convertImportToRelative(
-        route.import.line,
-        route.import.from,
-        appRoutesDir,
-        appDir
-      );
-      // Avoid duplicates
-      if (!imports.includes(convertedImport)) {
-        imports.push(convertedImport);
-      }
+  if (indexRoute && indexRoute.import) {
+    const convertedImport = convertImportToRelative(
+      indexRoute.import.line,
+      indexRoute.import.from,
+      appRoutesDir,
+      appDir
+    );
+    if (!imports.includes(convertedImport)) {
+      imports.push(convertedImport);
     }
+  }
+  
+  if (notFoundRoute && notFoundRoute.import) {
+    const convertedImport = convertImportToRelative(
+      notFoundRoute.import.line,
+      notFoundRoute.import.from,
+      appRoutesDir,
+      appDir
+    );
+    if (!imports.includes(convertedImport)) {
+      imports.push(convertedImport);
+    }
+  }
+
+  // Build the routes array
+  // IMPORTANT: Order matters! "*" (NotFound) must be LAST
+  const routeElements: string[] = [];
+  
+  // Add Index route (path="/") first
+  if (indexRoute) {
+    routeElements.push(`    { path: "${indexRoute.path}", element: <${indexRoute.componentName} /> }`);
+  }
+  
+  // Add gmoonc routes in the middle
+  routeElements.push(`    ...createGmooncRoutes({ basePath })`);
+  
+  // Add NotFound route (path="*") LAST - this is critical for React Router
+  if (notFoundRoute) {
+    routeElements.push(`    { path: "${notFoundRoute.path}", element: <${notFoundRoute.componentName} /> }`);
   }
 
   const content = `${imports.join('\n')}
@@ -429,41 +446,45 @@ export function patchBrowserRouter(
   
   const lines = appContent.split('\n');
   
-  // Ensure BrowserRouter is imported
+  // Ensure BrowserRouter is imported (CRITICAL: App.tsx uses <BrowserRouter>)
   let hasBrowserRouterImport = false;
   let reactRouterImportIndex = -1;
+  let reactRouterImportLine: string | null = null;
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (line.includes('from') && line.includes('react-router-dom')) {
       reactRouterImportIndex = i;
+      reactRouterImportLine = lines[i];
+      // Check if BrowserRouter is in this import (handle both named and default imports)
       if (line.includes('BrowserRouter')) {
         hasBrowserRouterImport = true;
       }
     }
   }
   
-  // Add or update BrowserRouter import
+  // Add or update BrowserRouter import - ALWAYS ensure it exists if <BrowserRouter> is used
   if (!hasBrowserRouterImport) {
-    if (reactRouterImportIndex >= 0) {
+    if (reactRouterImportIndex >= 0 && reactRouterImportLine) {
       // Update existing react-router-dom import to include BrowserRouter
-      const existingLine = lines[reactRouterImportIndex];
-      if (existingLine.includes('{') && existingLine.includes('}')) {
-        // Add BrowserRouter to the named imports
-        const updatedLine = existingLine.replace(/\{([^}]+)\}/, (match, imports) => {
-          const importList = imports.split(',').map((s: string) => s.trim());
-          if (!importList.includes('BrowserRouter')) {
-            importList.push('BrowserRouter');
-          }
-          return `{ ${importList.join(', ')} }`;
-        });
-        lines[reactRouterImportIndex] = updatedLine;
+      const existingLine = reactRouterImportLine;
+      
+      // Match: import { X, Y } from "react-router-dom"
+      const namedMatch = existingLine.match(/^(\s*)import\s+\{([^}]+)\}\s+from\s+["']react-router-dom["']/);
+      if (namedMatch) {
+        const indent = namedMatch[1];
+        const importList = namedMatch[2].split(',').map((s: string) => s.trim()).filter(Boolean);
+        if (!importList.includes('BrowserRouter')) {
+          importList.push('BrowserRouter');
+          const updatedLine = `${indent}import { ${importList.join(', ')} } from "react-router-dom";`;
+          lines[reactRouterImportIndex] = updatedLine;
+        }
       } else {
-        // Default import, add named import for BrowserRouter
+        // Default import or other format, add separate named import for BrowserRouter
         lines.splice(reactRouterImportIndex + 1, 0, `import { BrowserRouter } from "react-router-dom";`);
       }
     } else {
-      // No react-router-dom import, add it
+      // No react-router-dom import exists, add it
       const importLine = `import { BrowserRouter } from "react-router-dom";`;
       let lastImportIndex = -1;
       for (let i = 0; i < lines.length; i++) {
