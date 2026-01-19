@@ -217,10 +217,14 @@ export function GmooncMenu({
       onToggle();
     }
 
+    // Logo navigates to basePath (default /app)
     if (onNavigate) {
-      onNavigate('/');
+      // Try to find basePath from first menu item, or default to /app
+      const firstItem = items.find(item => item.path);
+      const basePath = firstItem?.path?.replace(/\/[^/]+$/, '') || '/app';
+      onNavigate(basePath);
     }
-  }, [isOpen, onLogoClick, onToggle, onNavigate]);
+  }, [isOpen, onLogoClick, onToggle, onNavigate, items]);
 
   useEffect(() => {
     if (!isClient || !isOverlayMode || !isOpen) {
@@ -493,12 +497,19 @@ export function GmooncMenu({
       {(logoUrl || onLogoClick) && (
         <div className="gmoonc-menu-header">
           <div className="gmoonc-menu-logo-container">
-            {renderLink ? (
+            {renderLink && logoUrl ? (
               renderLink({
-                path: '/',
+                path: items.find(item => item.path)?.path?.replace(/\/[^/]+$/, '') || '/app',
                 label: logoAlt,
                 isActive: false,
-                onClick: handleLogoClick
+                onClick: handleLogoClick,
+                children: (
+                  <img
+                    src={logoUrl}
+                    alt={logoAlt}
+                    className="gmoonc-menu-logo"
+                  />
+                )
               })
             ) : (
               <button

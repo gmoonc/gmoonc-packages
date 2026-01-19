@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGMooncSession } from '../session/GMooncSessionContext';
+import '../styles/app.css';
 
 interface Role {
   id: string;
@@ -342,7 +343,7 @@ export function GMooncPermissionsManager() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-lg font-semibold" style={{ color: '#374161' }}>Loading...</div>
+        <div className="text-lg font-semibold" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>Loading...</div>
       </div>
     );
   }
@@ -354,9 +355,9 @@ export function GMooncPermissionsManager() {
         <button
           onClick={() => setShowNewRoleModal(true)}
           className="px-5 py-2.5 rounded-lg text-white font-semibold transition-all duration-200 hover:shadow-lg whitespace-nowrap"
-          style={{ backgroundColor: '#71b399' }}
+          style={{ backgroundColor: 'var(--gmoonc-color-accent, #71b399)' }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5fa086'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#71b399'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--gmoonc-color-accent, #71b399)'}
         >
           + New Role
         </button>
@@ -364,46 +365,46 @@ export function GMooncPermissionsManager() {
 
       {/* Mensagens de erro e sucesso */}
       {error && (
-        <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: '#fee', borderColor: '#fcc', color: '#c33' }}>
+        <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: 'var(--gmoonc-color-error-bg, #fef2f2)', borderColor: 'var(--gmoonc-color-error-border, #fecaca)', color: 'var(--gmoonc-color-error, #dc2626)' }}>
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: '#efe', borderColor: '#cfc', color: '#3c3' }}>
+        <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: 'var(--gmoonc-color-success-bg, #f0fdf4)', borderColor: 'var(--gmoonc-color-success-border, #bbf7d0)', color: 'var(--gmoonc-color-success, #166534)' }}>
           {success}
         </div>
       )}
 
       {/* Desktop e Tablet - Tabela */}
-      <div className="hidden lg:block overflow-x-auto bg-white rounded-lg shadow-sm border" style={{ borderColor: '#dbe2ea' }}>
+      <div className="hidden lg:block overflow-x-auto bg-white rounded-lg shadow-sm border" style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}>
         <table className="min-w-full">
-          <thead style={{ backgroundColor: '#eaf0f5' }}>
+          <thead style={{ backgroundColor: 'var(--gmoonc-color-bg-light, #eaf0f5)' }}>
             <tr>
-              <th className="px-4 py-4 text-left text-sm font-semibold align-middle min-w-[220px]" style={{ color: '#374161', borderBottom: '2px solid #dbe2ea' }}>
+              <th className="px-4 py-4 text-left text-sm font-semibold align-middle min-w-[220px]" style={{ color: 'var(--gmoonc-color-text-primary, #374161)', borderBottom: '2px solid var(--gmoonc-color-border, #dbe2ea)' }}>
                 Roles / Modules
               </th>
               {modules.map(module => (
-                <th key={module.id} className="px-3 py-4 text-center text-xs font-semibold align-middle min-w-[140px]" style={{ color: '#374161', borderBottom: '2px solid #dbe2ea' }}>
+                <th key={module.id} className="px-3 py-4 text-center text-xs font-semibold align-middle min-w-[140px]" style={{ color: 'var(--gmoonc-color-text-primary, #374161)', borderBottom: '2px solid var(--gmoonc-color-border, #dbe2ea)' }}>
                   {module.display_name}
                 </th>
               ))}
-              <th className="px-4 py-4 text-center text-sm font-semibold align-middle min-w-[120px]" style={{ color: '#374161', borderBottom: '2px solid #dbe2ea' }}>
+              <th className="px-4 py-4 text-center text-sm font-semibold align-middle min-w-[120px]" style={{ color: 'var(--gmoonc-color-text-primary, #374161)', borderBottom: '2px solid var(--gmoonc-color-border, #dbe2ea)' }}>
                 Actions
               </th>
             </tr>
           </thead>
           <tbody>
             {roles.map((role, idx) => (
-              <tr key={role.id} className="transition-colors hover:bg-opacity-50" style={{ backgroundColor: idx % 2 === 0 ? 'transparent' : '#fafbfc', borderBottom: '1px solid #eaf0f5' }}>
+              <tr key={role.id} className="transition-colors hover:bg-opacity-50" style={{ backgroundColor: idx % 2 === 0 ? 'transparent' : 'var(--gmoonc-color-surface-light, #f8f9fa)', borderBottom: '1px solid var(--gmoonc-color-bg-light, #eaf0f5)' }}>
                 <td className="px-4 py-4 align-middle">
                   <div>
-                    <div className="font-semibold text-base" style={{ color: '#374161' }}>{role.name}</div>
+                    <div className="font-semibold text-base" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>{role.name}</div>
                     {role.description && (
-                      <div className="text-sm mt-1" style={{ color: '#6374AD' }}>{role.description}</div>
+                      <div className="text-sm mt-1" style={{ color: 'var(--gmoonc-color-primary-2, #6374AD)' }}>{role.description}</div>
                     )}
                     {role.is_system_role && (
-                      <span className="inline-block text-xs px-2 py-1 rounded-full mt-2" style={{ backgroundColor: '#dbe2ea', color: '#374161' }}>
+                      <span className="inline-block text-xs px-2 py-1 rounded-full mt-2" style={{ backgroundColor: 'var(--gmoonc-color-border, #dbe2ea)', color: 'var(--gmoonc-color-text-primary, #374161)' }}>
                         System
                       </span>
                     )}
@@ -439,9 +440,9 @@ export function GMooncPermissionsManager() {
                                   }));
                                 }}
                                 className="w-4 h-4 rounded cursor-pointer flex-shrink-0"
-                                style={{ accentColor: '#71b399' }}
+                                style={{ accentColor: 'var(--gmoonc-color-accent, #71b399)' }}
                               />
-                              <span className="text-xs whitespace-nowrap" style={{ color: '#6374AD' }}>Access</span>
+                              <span className="text-xs whitespace-nowrap" style={{ color: 'var(--gmoonc-color-primary-2, #6374AD)' }}>Access</span>
                             </label>
                             {['Create', 'Read', 'Update', 'Delete'].map((label) => (
                               <label key={label} className="flex items-center gap-2 opacity-40 h-8">
@@ -477,9 +478,9 @@ export function GMooncPermissionsManager() {
                                 checked={!!permission[key as keyof typeof permission]}
                                 onChange={(e) => handlePermissionChange(role.id, module.id, key as keyof Permission, e.target.checked)}
                                 className="w-4 h-4 rounded cursor-pointer flex-shrink-0"
-                                style={{ accentColor: '#71b399' }}
+                                style={{ accentColor: 'var(--gmoonc-color-accent, #71b399)' }}
                               />
-                              <span className="text-xs whitespace-nowrap" style={{ color: '#6374AD' }}>{label}</span>
+                              <span className="text-xs whitespace-nowrap" style={{ color: 'var(--gmoonc-color-primary-2, #6374AD)' }}>{label}</span>
                             </label>
                           ))}
                         </div>
@@ -494,17 +495,17 @@ export function GMooncPermissionsManager() {
                         onClick={() => handleEditRole(role)}
                         className="text-sm px-3 py-1.5 rounded-lg border transition-all duration-200"
                         style={{
-                          color: '#6374AD',
-                          borderColor: '#6374AD',
+                          color: 'var(--gmoonc-color-primary-2, #6374AD)',
+                          borderColor: 'var(--gmoonc-color-primary-2, #6374AD)',
                           backgroundColor: 'transparent'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#6374AD';
+                          e.currentTarget.style.backgroundColor = 'var(--gmoonc-color-primary-2, #6374AD)';
                           e.currentTarget.style.color = '#fff';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = '#6374AD';
+                          e.currentTarget.style.color = 'var(--gmoonc-color-primary-2, #6374AD)';
                         }}
                         title="Edit role"
                       >
@@ -534,7 +535,7 @@ export function GMooncPermissionsManager() {
                     </div>
                   )}
                   {role.is_system_role && (
-                    <span className="text-xs italic" style={{ color: '#879FED' }}>
+                    <span className="text-xs italic" style={{ color: 'var(--gmoonc-color-primary, #879FED)' }}>
                       System role
                     </span>
                   )}
@@ -548,17 +549,17 @@ export function GMooncPermissionsManager() {
       {/* Tablet e Mobile - Cards individuais sem container externo */}
       <div className="lg:hidden space-y-4">
         {roles.map(role => (
-          <div key={role.id} className="p-4 sm:p-5 rounded-lg shadow-md bg-white" style={{ border: '1px solid #dbe2ea' }}>
+          <div key={role.id} className="p-4 sm:p-5 rounded-lg shadow-md bg-white" style={{ border: '1px solid var(--gmoonc-color-border, #dbe2ea)' }}>
             {/* Role Header com Botões de Ação no Topo */}
-            <div className="mb-4 pb-4 sm:mb-4 sm:pb-4" style={{ borderBottom: '1px solid #dbe2ea' }}>
+            <div className="mb-4 pb-4 sm:mb-4 sm:pb-4" style={{ borderBottom: '1px solid var(--gmoonc-color-border, #dbe2ea)' }}>
               <div className="flex items-start justify-between gap-3 sm:gap-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base sm:text-lg" style={{ color: '#374161' }}>{role.name}</h3>
+                  <h3 className="font-semibold text-base sm:text-lg" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>{role.name}</h3>
                   {role.description && (
-                    <p className="text-xs sm:text-sm mt-1" style={{ color: '#6374AD' }}>{role.description}</p>
+                    <p className="text-xs sm:text-sm mt-1" style={{ color: 'var(--gmoonc-color-primary-2, #6374AD)' }}>{role.description}</p>
                   )}
                   {role.is_system_role && (
-                    <span className="inline-block text-xs px-2 py-1 rounded-full mt-2" style={{ backgroundColor: '#dbe2ea', color: '#374161' }}>
+                    <span className="inline-block text-xs px-2 py-1 rounded-full mt-2" style={{ backgroundColor: 'var(--gmoonc-color-border, #dbe2ea)', color: 'var(--gmoonc-color-text-primary, #374161)' }}>
                       System
                     </span>
                   )}
@@ -572,11 +573,11 @@ export function GMooncPermissionsManager() {
                       className="flex items-center justify-center gap-1.5 text-xs px-3 py-2 rounded-lg border transition-all hover:shadow-md"
                       style={{
                         color: '#fff',
-                        backgroundColor: '#6374AD',
-                        borderColor: '#6374AD'
+                        backgroundColor: 'var(--gmoonc-color-primary-2, #6374AD)',
+                        borderColor: 'var(--gmoonc-color-primary-2, #6374AD)'
                       }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4f5d8f'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6374AD'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--gmoonc-color-primary-2, #6374AD)'}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
@@ -621,8 +622,8 @@ export function GMooncPermissionsManager() {
               {modules.map(module => {
                 const permission = permissions[role.id]?.[module.id];
                 return (
-                  <div key={module.id} className="p-3 sm:p-3 rounded-lg" style={{ backgroundColor: '#fafbfc', border: '1px solid #eaf0f5' }}>
-                    <h4 className="font-semibold text-sm mb-3 sm:mb-3" style={{ color: '#374161' }}>{module.display_name}</h4>
+                  <div key={module.id} className="p-3 sm:p-3 rounded-lg" style={{ backgroundColor: 'var(--gmoonc-color-surface-light, #f8f9fa)', border: '1px solid var(--gmoonc-color-bg-light, #eaf0f5)' }}>
+                    <h4 className="font-semibold text-sm mb-3 sm:mb-3" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>{module.display_name}</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
                       {!permission ? (
                         <>
@@ -675,7 +676,7 @@ export function GMooncPermissionsManager() {
                                 checked={!!permission[key as keyof typeof permission]}
                                 onChange={(e) => handlePermissionChange(role.id, module.id, key as keyof Permission, e.target.checked)}
                                 className="w-4 h-4 rounded flex-shrink-0"
-                                style={{ accentColor: '#71b399' }}
+                                style={{ accentColor: 'var(--gmoonc-color-accent, #71b399)' }}
                               />
                               <span className="text-xs" style={{ color: '#6374AD' }}>{label}</span>
                             </label>
@@ -709,10 +710,10 @@ export function GMooncPermissionsManager() {
       {showNewRoleModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-            <h2 className="text-xl font-bold mb-6" style={{ color: '#374161' }}>Create New Role</h2>
+            <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>Create New Role</h2>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#374161' }}>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>
                 Role Name *
               </label>
               <input
@@ -720,20 +721,20 @@ export function GMooncPermissionsManager() {
                 value={newRoleName}
                 onChange={(e) => setNewRoleName(e.target.value)}
                 className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#71b399] transition-all"
-                style={{ borderColor: '#dbe2ea' }}
+                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}
                 placeholder="e.g., manager, supervisor"
               />
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#374161' }}>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>
                 Description
               </label>
               <textarea
                 value={newRoleDescription}
                 onChange={(e) => setNewRoleDescription(e.target.value)}
                 className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                style={{ borderColor: '#dbe2ea' }}
+                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}
                 rows={3}
                 placeholder="Description of this role's function"
               />
@@ -772,7 +773,7 @@ export function GMooncPermissionsManager() {
             <h2 className="text-xl font-bold mb-6" style={{ color: '#374161' }}>Edit Role</h2>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#374161' }}>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>
                 Role Name *
               </label>
               <input
@@ -780,7 +781,7 @@ export function GMooncPermissionsManager() {
                 value={editingRole.name}
                 onChange={(e) => setEditingRole({ ...editingRole, name: e.target.value })}
                 className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                style={{ borderColor: '#dbe2ea' }}
+                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}
                 placeholder="e.g., manager, supervisor"
                 maxLength={50}
               />
@@ -790,14 +791,14 @@ export function GMooncPermissionsManager() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#374161' }}>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--gmoonc-color-text-primary, #374161)' }}>
                 Description
               </label>
               <textarea
                 value={editingRole.description || ''}
                 onChange={(e) => setEditingRole({ ...editingRole, description: e.target.value })}
                 className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                style={{ borderColor: '#dbe2ea' }}
+                style={{ borderColor: 'var(--gmoonc-color-border, #dbe2ea)' }}
                 rows={3}
                 placeholder="Description of this role's function"
                 maxLength={200}

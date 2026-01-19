@@ -1,5 +1,5 @@
 import { type MenuItem as CoreMenuItem } from '../../core/types';
-import { Home, Users, Shield, MessageSquare, Settings, ChevronRight, ChevronDown } from 'lucide-react';
+import { Users, Shield, MessageSquare, Settings, ChevronRight, ChevronDown } from 'lucide-react';
 import type React from 'react';
 
 /**
@@ -17,7 +17,6 @@ export interface MenuItemWithSubmenu extends CoreMenuItem {
  * 
  * This is the source of truth for dashboard routes and menu items.
  * Product basic includes:
- * - Home (index route)
  * - Admin -> Permissions
  * - Technical -> Messages
  * - Customer -> Messages
@@ -26,13 +25,6 @@ export interface MenuItemWithSubmenu extends CoreMenuItem {
  */
 export function createDefaultMenu(basePath: string = '/app'): MenuItemWithSubmenu[] {
   return [
-    {
-      id: 'home',
-      label: 'Home',
-      path: basePath,
-      roles: [],
-      icon: <Home size={18} strokeWidth={2.5} />
-    },
     {
       id: 'admin',
       label: 'Admin',

@@ -71,9 +71,13 @@ export function GmooncShell({
 
   const handleLogoClick = useCallback(() => {
     if (onNavigate) {
-      onNavigate('/');
+      // Navigate to basePath (default /app)
+      const basePath = config.menu && Array.isArray(config.menu) && config.menu.length > 0
+        ? (config.menu[0] as any).path?.replace(/\/[^/]+$/, '') || '/app'
+        : '/app';
+      onNavigate(basePath);
     }
-  }, [onNavigate]);
+  }, [onNavigate, config]);
 
   const handleMenuNavigate = useCallback((path: string) => {
     if (onNavigate) {

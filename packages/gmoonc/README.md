@@ -46,7 +46,35 @@ Your dashboard is now available at:
 
 The dashboard code is in `src/gmoonc/` and is independent. You can remove `gmoonc` from `package.json` if desired.
 
+## Customization
+
+### Theme
+
+Edit `src/gmoonc/styles/theme.css` to customize colors, fonts, and spacing. All styles use CSS variables that you can override.
+
+### Logo
+
+The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it with your own logo (recommended size: 600x74px).
+
+## Important Notes
+
+- **One-shot installer**: The installer will abort if `src/gmoonc/` directory or `.gmoonc-installed.json` marker file already exists. To reinstall, remove the directory and restore backups.
+- **No prompts**: The installer runs automatically without any flags like `--yes` or `--auto`.
+
 ## Changelog
+
+### 0.0.12
+- Feature: Logo in menu header (replaces "Home" item)
+- Fix: Rename defaultMenu.ts to .tsx (fixes build error with JSX)
+- Fix: Profile icon positioning on mobile devices
+- Fix: Submenu text colors using CSS tokens
+- Fix: Permissions page colors using CSS tokens
+
+### 0.0.11
+- Feature: Menu icons (lucide-react) properly rendered
+- Fix: Text colors using CSS tokens throughout
+- Fix: Typography (Montserrat) applied consistently
+- Fix: Profile positioning on tablet
 
 ### 0.0.10
 - Fix: ensure BrowserRouter import when patched into App.tsx (definitive fix)

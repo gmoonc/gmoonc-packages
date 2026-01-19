@@ -23,6 +23,10 @@ function GMooncAppLayoutInner() {
     navigate('/app/office/about');
   }, [navigate]);
 
+  const handleLogoClick = useCallback(() => {
+    navigate('/app');
+  }, [navigate]);
+
   return (
     <div className="gmoonc-root">
       <GmooncShell
@@ -37,6 +41,8 @@ function GMooncAppLayoutInner() {
             onLogoutRequest={handleLogout}
           />
         }
+        logoUrl="/gmoonc/assets/gmoonc-logo.png"
+        logoAlt="GMoonc"
         renderLink={({ path, label, isActive, onClick, className, children }) => (
           <Link
             to={path}

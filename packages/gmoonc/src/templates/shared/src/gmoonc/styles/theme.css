@@ -31,7 +31,10 @@
   /* Colors - Text (Menu & Header specific) */
   --gmoonc-sidebar-text: #ffffff;
   --gmoonc-sidebar-text-active: #293047;
+  --gmoonc-sidebar-text-muted: rgba(255, 255, 255, 0.85);
   --gmoonc-sidebar-muted: #ffffff;
+  --gmoonc-sidebar-active-bg: #dbe2ea;
+  --gmoonc-sidebar-hover-bg: rgba(219, 226, 234, 0.5);
   --gmoonc-header-text: #ffffff;
   --gmoonc-surface-text: #374161;
   --gmoonc-link: #6374AD;

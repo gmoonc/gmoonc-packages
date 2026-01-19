@@ -165,7 +165,7 @@
 }
 
 .gmoonc-submenu-link:hover {
-  background-color: rgba(219, 226, 234, 0.5);
+  background-color: var(--gmoonc-sidebar-hover-bg, rgba(219, 226, 234, 0.5));
   color: var(--gmoonc-surface-text, #374161);
 }
 
@@ -181,7 +181,7 @@
 }
 
 .gmoonc-submenu-link.active {
-  background-color: #dbe2ea;
+  background-color: var(--gmoonc-sidebar-active-bg, #dbe2ea);
   color: var(--gmoonc-surface-text, #374161);
   font-weight: 600;
   border-left-color: var(--gmoonc-color-text-primary, #374161);
@@ -477,7 +477,9 @@
   }
 
   .gmoonc-header {
-    display: block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 18px 20px;
     position: fixed;
     top: 0;
@@ -485,6 +487,16 @@
     right: 0;
     height: 70px;
     z-index: 900;
+  }
+
+  .gmoonc-header h1 {
+    font-size: 20px;
+  }
+
+  .gmoonc-header-right {
+    margin-left: auto;
+    position: relative;
+    z-index: 1001;
   }
   
   .gmoonc-content {
