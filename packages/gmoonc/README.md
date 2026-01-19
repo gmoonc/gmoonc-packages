@@ -46,6 +46,16 @@ Your dashboard is now available at:
 
 The dashboard code is in `src/gmoonc/` and is independent. You can remove `gmoonc` from `package.json` if desired.
 
+## Changelog
+
+### 0.0.9
+- Fix: ensure BrowserRouter import when patched into App.tsx
+
+### 0.0.8
+- Fix: BIN corrected to use CommonJS (.cjs) for Windows compatibility
+- Fix: Router patch now ensures BrowserRouter import is always present
+- Fix: Route order corrected (NotFound "*" route is always last)
+
 ## Uninstalling
 
 To remove gmoonc:

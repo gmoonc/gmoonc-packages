@@ -49,7 +49,7 @@ function parseImports(content: string): ParsedImport[] {
       continue;
     }
     
-    // Match: import { X, Y } from "path"
+    // Match: import { X, Y } from "path" or import { type X } from "path"
     const namedMatch = line.match(/^import\s+\{([^}]+)\}\s+from\s+["']([^"']+)["']/);
     if (namedMatch) {
       const exports = namedMatch[1].split(',').map(s => s.trim());
@@ -447,17 +447,32 @@ export function patchBrowserRouter(
   const lines = appContent.split('\n');
   
   // Ensure BrowserRouter is imported (CRITICAL: App.tsx uses <BrowserRouter>)
+  // This function ensures BrowserRouter import exists when <BrowserRouter> is used in JSX
   let hasBrowserRouterImport = false;
   let reactRouterImportIndex = -1;
   let reactRouterImportLine: string | null = null;
+  let quoteStyle: "'" | '"' = '"'; // Default to double quotes
   
+  // First pass: detect existing imports and quote style
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (line.includes('from') && line.includes('react-router-dom')) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    
+    // Detect quote style from existing imports
+    if (trimmed.startsWith('import ') && (trimmed.includes("'") || trimmed.includes('"'))) {
+      if (trimmed.includes("'")) quoteStyle = "'";
+      else if (trimmed.includes('"')) quoteStyle = '"';
+    }
+    
+    // Check for react-router-dom imports
+    if (trimmed.includes('from') && trimmed.includes('react-router-dom')) {
       reactRouterImportIndex = i;
-      reactRouterImportLine = lines[i];
-      // Check if BrowserRouter is in this import (handle both named and default imports)
-      if (line.includes('BrowserRouter')) {
+      reactRouterImportLine = line;
+      
+      // Check if BrowserRouter is already imported (handle various formats)
+      // Match: import { BrowserRouter } or import { BrowserRouter, ... } or import { type BrowserRouter }
+      const browserRouterPattern = /\bBrowserRouter\b/;
+      if (browserRouterPattern.test(trimmed)) {
         hasBrowserRouterImport = true;
       }
     }
@@ -468,24 +483,41 @@ export function patchBrowserRouter(
     if (reactRouterImportIndex >= 0 && reactRouterImportLine) {
       // Update existing react-router-dom import to include BrowserRouter
       const existingLine = reactRouterImportLine;
+      const indent = existingLine.match(/^(\s*)/)?.[1] || '';
       
-      // Match: import { X, Y } from "react-router-dom"
-      const namedMatch = existingLine.match(/^(\s*)import\s+\{([^}]+)\}\s+from\s+["']react-router-dom["']/);
+      // Match: import { X, Y } from "react-router-dom" or import { type X } from "react-router-dom"
+      const namedMatch = existingLine.match(/^(\s*)import\s+\{([^}]+)\}\s+from\s+(["'])react-router-dom\2/);
       if (namedMatch) {
-        const indent = namedMatch[1];
-        const importList = namedMatch[2].split(',').map((s: string) => s.trim()).filter(Boolean);
-        if (!importList.includes('BrowserRouter')) {
-          importList.push('BrowserRouter');
-          const updatedLine = `${indent}import { ${importList.join(', ')} } from "react-router-dom";`;
+        const importListStr = namedMatch[2];
+        const quote = namedMatch[3] as "'" | '"';
+        
+        // Parse imports, handling "type" keywords and preserving formatting
+        const importItems = importListStr.split(',').map(s => s.trim()).filter(Boolean);
+        const hasBrowserRouter = importItems.some(item => 
+          item === 'BrowserRouter' || 
+          item === 'type BrowserRouter' || 
+          item.includes('BrowserRouter')
+        );
+        
+        if (!hasBrowserRouter) {
+          // Add BrowserRouter to the list
+          importItems.push('BrowserRouter');
+          // Preserve original formatting style (spaces, trailing comma if present)
+          const hasTrailingComma = importListStr.trim().endsWith(',');
+          const separator = importListStr.includes(',\n') ? ',\n' : ', ';
+          const formatted = importItems.join(separator) + (hasTrailingComma ? ',' : '');
+          const updatedLine = `${indent}import { ${formatted} } from ${quote}react-router-dom${quote};`;
           lines[reactRouterImportIndex] = updatedLine;
         }
       } else {
-        // Default import or other format, add separate named import for BrowserRouter
-        lines.splice(reactRouterImportIndex + 1, 0, `import { BrowserRouter } from "react-router-dom";`);
+        // Default import, namespace import, or other format
+        // Add separate named import for BrowserRouter right after the existing import
+        const newImportLine = `${indent}import { BrowserRouter } from ${quoteStyle}react-router-dom${quoteStyle};`;
+        lines.splice(reactRouterImportIndex + 1, 0, newImportLine);
       }
     } else {
       // No react-router-dom import exists, add it
-      const importLine = `import { BrowserRouter } from "react-router-dom";`;
+      const importLine = `import { BrowserRouter } from ${quoteStyle}react-router-dom${quoteStyle};`;
       let lastImportIndex = -1;
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
