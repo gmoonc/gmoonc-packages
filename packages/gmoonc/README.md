@@ -48,6 +48,11 @@ The dashboard code is in `src/gmoonc/` and is independent. You can remove `gmoon
 
 ## Changelog
 
+### 0.0.10
+- Fix: ensure BrowserRouter import when patched into App.tsx (definitive fix)
+- Fix: prevent re-installation if src/gmoonc or marker file exists
+- Fix: create marker file (.gmoonc-installed.json) after successful installation
+
 ### 0.0.9
 - Fix: ensure BrowserRouter import when patched into App.tsx
 

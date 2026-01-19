@@ -356,6 +356,113 @@ ${routeElements.join(',\n')}
 }
 
 /**
+ * Ensure BrowserRouter import exists in App.tsx content
+ * This function is called AFTER the patch to guarantee the import is present
+ */
+function ensureBrowserRouterImport(content: string): string {
+  // Check if <BrowserRouter> is used in the content
+  if (!content.includes('<BrowserRouter')) {
+    return content; // No BrowserRouter used, no need to add import
+  }
+
+  const lines = content.split('\n');
+  let hasBrowserRouterImport = false;
+  let reactRouterImportIndex = -1;
+  let reactRouterImportLine: string | null = null;
+  let quoteStyle: "'" | '"' = '"'; // Default to double quotes
+  
+  // First pass: detect existing imports and quote style
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    
+    // Detect quote style from existing imports
+    if (trimmed.startsWith('import ') && (trimmed.includes("'") || trimmed.includes('"'))) {
+      if (trimmed.includes("'")) quoteStyle = "'";
+      else if (trimmed.includes('"')) quoteStyle = '"';
+    }
+    
+    // Check for react-router-dom imports
+    if (trimmed.includes('from') && trimmed.includes('react-router-dom')) {
+      reactRouterImportIndex = i;
+      reactRouterImportLine = line;
+      
+      // Check if BrowserRouter is already imported (handle various formats)
+      const browserRouterPattern = /\bBrowserRouter\b/;
+      if (browserRouterPattern.test(trimmed)) {
+        hasBrowserRouterImport = true;
+      }
+    }
+  }
+  
+  // If BrowserRouter is already imported, return content as-is
+  if (hasBrowserRouterImport) {
+    return content;
+  }
+  
+  // Add or update BrowserRouter import
+  if (reactRouterImportIndex >= 0 && reactRouterImportLine) {
+    // Update existing react-router-dom import to include BrowserRouter
+    const existingLine = reactRouterImportLine;
+    const indent = existingLine.match(/^(\s*)/)?.[1] || '';
+    
+    // Match: import { X, Y } from "react-router-dom" or import { type X } from "react-router-dom"
+    const namedMatch = existingLine.match(/^(\s*)import\s+\{([^}]+)\}\s+from\s+(["'])react-router-dom\2/);
+    if (namedMatch) {
+      const importListStr = namedMatch[2];
+      const quote = namedMatch[3] as "'" | '"';
+      
+      // Parse imports, handling "type" keywords
+      const importItems = importListStr.split(',').map(s => s.trim()).filter(Boolean);
+      const hasBrowserRouter = importItems.some(item => 
+        item === 'BrowserRouter' || 
+        item === 'type BrowserRouter' || 
+        item.includes('BrowserRouter')
+      );
+      
+      if (!hasBrowserRouter) {
+        // Add BrowserRouter to the list (before type imports if any)
+        const typeImports = importItems.filter(item => item.startsWith('type '));
+        const regularImports = importItems.filter(item => !item.startsWith('type '));
+        
+        regularImports.push('BrowserRouter');
+        const sortedImports = [...regularImports, ...typeImports];
+        
+        // Preserve original formatting
+        const separator = importListStr.includes(',\n') ? ',\n' : ', ';
+        const formatted = sortedImports.join(separator);
+        const updatedLine = `${indent}import { ${formatted} } from ${quote}react-router-dom${quote};`;
+        lines[reactRouterImportIndex] = updatedLine;
+      }
+    } else {
+      // Namespace import or default import: import * as ReactRouterDOM from "react-router-dom"
+      // Add separate named import for BrowserRouter
+      const newImportLine = `${indent}import { BrowserRouter } from ${quoteStyle}react-router-dom${quoteStyle};`;
+      lines.splice(reactRouterImportIndex + 1, 0, newImportLine);
+    }
+  } else {
+    // No react-router-dom import exists, add it
+    const importLine = `import { BrowserRouter } from ${quoteStyle}react-router-dom${quoteStyle};`;
+    let lastImportIndex = -1;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('import ') || line.startsWith('import{') || line.startsWith('import\t')) {
+        lastImportIndex = i;
+      } else if (line && lastImportIndex >= 0 && !line.startsWith('//') && !line.startsWith('/*')) {
+        break;
+      }
+    }
+    if (lastImportIndex >= 0) {
+      lines.splice(lastImportIndex + 1, 0, importLine);
+    } else {
+      lines.unshift(importLine);
+    }
+  }
+  
+  return lines.join('\n');
+}
+
+/**
  * Patch App.tsx to use GMooncAppRoutes
  * Preserves all wrappers and only modifies the router block
  */
@@ -446,95 +553,6 @@ export function patchBrowserRouter(
   
   const lines = appContent.split('\n');
   
-  // Ensure BrowserRouter is imported (CRITICAL: App.tsx uses <BrowserRouter>)
-  // This function ensures BrowserRouter import exists when <BrowserRouter> is used in JSX
-  let hasBrowserRouterImport = false;
-  let reactRouterImportIndex = -1;
-  let reactRouterImportLine: string | null = null;
-  let quoteStyle: "'" | '"' = '"'; // Default to double quotes
-  
-  // First pass: detect existing imports and quote style
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const trimmed = line.trim();
-    
-    // Detect quote style from existing imports
-    if (trimmed.startsWith('import ') && (trimmed.includes("'") || trimmed.includes('"'))) {
-      if (trimmed.includes("'")) quoteStyle = "'";
-      else if (trimmed.includes('"')) quoteStyle = '"';
-    }
-    
-    // Check for react-router-dom imports
-    if (trimmed.includes('from') && trimmed.includes('react-router-dom')) {
-      reactRouterImportIndex = i;
-      reactRouterImportLine = line;
-      
-      // Check if BrowserRouter is already imported (handle various formats)
-      // Match: import { BrowserRouter } or import { BrowserRouter, ... } or import { type BrowserRouter }
-      const browserRouterPattern = /\bBrowserRouter\b/;
-      if (browserRouterPattern.test(trimmed)) {
-        hasBrowserRouterImport = true;
-      }
-    }
-  }
-  
-  // Add or update BrowserRouter import - ALWAYS ensure it exists if <BrowserRouter> is used
-  if (!hasBrowserRouterImport) {
-    if (reactRouterImportIndex >= 0 && reactRouterImportLine) {
-      // Update existing react-router-dom import to include BrowserRouter
-      const existingLine = reactRouterImportLine;
-      const indent = existingLine.match(/^(\s*)/)?.[1] || '';
-      
-      // Match: import { X, Y } from "react-router-dom" or import { type X } from "react-router-dom"
-      const namedMatch = existingLine.match(/^(\s*)import\s+\{([^}]+)\}\s+from\s+(["'])react-router-dom\2/);
-      if (namedMatch) {
-        const importListStr = namedMatch[2];
-        const quote = namedMatch[3] as "'" | '"';
-        
-        // Parse imports, handling "type" keywords and preserving formatting
-        const importItems = importListStr.split(',').map(s => s.trim()).filter(Boolean);
-        const hasBrowserRouter = importItems.some(item => 
-          item === 'BrowserRouter' || 
-          item === 'type BrowserRouter' || 
-          item.includes('BrowserRouter')
-        );
-        
-        if (!hasBrowserRouter) {
-          // Add BrowserRouter to the list
-          importItems.push('BrowserRouter');
-          // Preserve original formatting style (spaces, trailing comma if present)
-          const hasTrailingComma = importListStr.trim().endsWith(',');
-          const separator = importListStr.includes(',\n') ? ',\n' : ', ';
-          const formatted = importItems.join(separator) + (hasTrailingComma ? ',' : '');
-          const updatedLine = `${indent}import { ${formatted} } from ${quote}react-router-dom${quote};`;
-          lines[reactRouterImportIndex] = updatedLine;
-        }
-      } else {
-        // Default import, namespace import, or other format
-        // Add separate named import for BrowserRouter right after the existing import
-        const newImportLine = `${indent}import { BrowserRouter } from ${quoteStyle}react-router-dom${quoteStyle};`;
-        lines.splice(reactRouterImportIndex + 1, 0, newImportLine);
-      }
-    } else {
-      // No react-router-dom import exists, add it
-      const importLine = `import { BrowserRouter } from ${quoteStyle}react-router-dom${quoteStyle};`;
-      let lastImportIndex = -1;
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (line.startsWith('import ') || line.startsWith('import{') || line.startsWith('import\t')) {
-          lastImportIndex = i;
-        } else if (line && lastImportIndex >= 0 && !line.startsWith('//') && !line.startsWith('/*')) {
-          break;
-        }
-      }
-      if (lastImportIndex >= 0) {
-        lines.splice(lastImportIndex + 1, 0, importLine);
-      } else {
-        lines.unshift(importLine);
-      }
-    }
-  }
-  
   // Add import for GMooncAppRoutes
   const importLine = `import { GMooncAppRoutes } from "./gmoonc/router/AppRoutes";`;
   
@@ -613,6 +631,9 @@ export function patchBrowserRouter(
     newContent = newContent.replace(/import\s+{[^}]*Routes[^}]*}\s+from\s+["']react-router-dom["'];?\n?/g, '');
     newContent = newContent.replace(/import\s+{[^}]*Route[^}]*}\s+from\s+["']react-router-dom["'];?\n?/g, '');
   }
+
+  // CRITICAL: Ensure BrowserRouter import exists after all modifications
+  newContent = ensureBrowserRouterImport(newContent);
 
   writeFileSafe(appPath, newContent);
   

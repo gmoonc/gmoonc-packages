@@ -1,19 +1,21 @@
 import { Command } from 'commander';
 import { cwd } from 'process';
 import { join } from 'path';
+import { existsSync, writeFileSync, readFileSync } from 'fs';
 import { detectProject } from './lib/detect.js';
 import { installDependencies } from './lib/installDeps.js';
 import { copySharedTemplates, copyViteRouterTemplates, getTemplatesDir } from './lib/templates.js';
 import { patchEntryCss } from './lib/patchEntryCss.js';
 import { patchBrowserRouter } from './lib/patchBrowserRouter.js';
 import { logInfo, logSuccess, logError, logWarning } from './lib/logger.js';
+import { ensureDirectoryExists } from './lib/fs.js';
 
 const program = new Command();
 
 program
   .name('gmoonc')
   .description('Goalmoon Ctrl (gmoonc): Install complete dashboard into your React project')
-  .version('0.0.9')
+  .version('0.0.10')
   .option('--base <path>', 'Base path for dashboard routes', '/app')
   .option('--skip-router-patch', 'Skip automatic router integration (only copy files and inject CSS)')
   .option('--dry-run', 'Show what would be done without making changes')
@@ -27,6 +29,16 @@ program
       const basePath = options.base || '/app';
       const dryRun = options.dryRun || false;
       const skipRouterPatch = options.skipRouterPatch || false;
+
+      // Check if already installed
+      const gmooncDir = join(projectDir, 'src/gmoonc');
+      const markerFile = join(gmooncDir, '.gmoonc-installed.json');
+      
+      if (existsSync(gmooncDir) || existsSync(markerFile)) {
+        logError('gmoonc already installed (src/gmoonc exists or marker file found).');
+        logError('Remove src/gmoonc and restore backups to reinstall.');
+        process.exit(1);
+      }
 
       // Ensure basePath is not "/"
       const safeBasePath = basePath === '/' ? '/app' : basePath;
@@ -100,6 +112,31 @@ program
         logInfo('\n⏭️  Skipping router patch (--skip-router-patch)');
       } else {
         logInfo('\n⏭️  Skipping router patch (router not detected)');
+      }
+
+      // Create marker file to prevent re-installation
+      if (!dryRun) {
+        ensureDirectoryExists(markerFile);
+        // Get version from package.json (relative to project root)
+        const packageJsonPath = join(projectDir, 'package.json');
+        let version = '0.0.10'; // fallback
+        try {
+          if (existsSync(packageJsonPath)) {
+            const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+            // Try to get version from gmoonc dependency if installed
+            const gmooncVersion = packageJson.dependencies?.gmoonc || packageJson.devDependencies?.gmoonc;
+            if (gmooncVersion) {
+              version = gmooncVersion.replace(/^[\^~]/, ''); // Remove ^ or ~
+            }
+          }
+        } catch {
+          // Use fallback version
+        }
+        const markerContent = JSON.stringify({
+          version,
+          installedAt: new Date().toISOString()
+        }, null, 2);
+        writeFileSync(markerFile, markerContent, 'utf-8');
       }
 
       logSuccess('\n✅ Installation complete!');
