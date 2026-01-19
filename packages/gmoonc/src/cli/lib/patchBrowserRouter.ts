@@ -1,7 +1,7 @@
 import { readFile, writeFileSafe, ensureDirectoryExists } from './fs.js';
 import { existsSync } from 'fs';
-import { join, relative, dirname, resolve } from 'path';
-import { logSuccess, logError, logInfo } from './logger.js';
+import { join, relative, dirname, resolve, extname } from 'path';
+import { logSuccess, logError, logInfo, logWarning } from './logger.js';
 
 export interface PatchResult {
   success: boolean;
@@ -159,7 +159,72 @@ function matchComponentsWithImports(routes: RouteComponent[], imports: ParsedImp
 }
 
 /**
+ * Resolve import path to actual file on filesystem
+ * Tries common extensions: .tsx, .ts, .jsx, .js, and index variants
+ */
+function resolveImportToFile(importPath: string, fromDir: string): string | null {
+  // If it's a node_modules import, return as-is (no resolution needed)
+  if (!importPath.startsWith('./') && !importPath.startsWith('../')) {
+    return null; // External import, don't resolve
+  }
+  
+  // Resolve base path relative to fromDir
+  const basePath = resolve(fromDir, importPath);
+  
+  // Try with extension if not already present
+  const extensions = ['.tsx', '.ts', '.jsx', '.js'];
+  const indexFiles = ['index.tsx', 'index.ts', 'index.jsx', 'index.js'];
+  
+  // First, try the path as-is (might already have extension)
+  if (existsSync(basePath)) {
+    const { statSync } = require('fs');
+    const stats = statSync(basePath);
+    if (stats.isFile()) {
+      return basePath;
+    }
+    if (stats.isDirectory()) {
+      // Try index files in directory
+      for (const indexFile of indexFiles) {
+        const indexPath = join(basePath, indexFile);
+        if (existsSync(indexPath)) {
+          return indexPath;
+        }
+      }
+    }
+  }
+  
+  // Try with extensions
+  for (const ext of extensions) {
+    const fullPath = basePath + ext;
+    if (existsSync(fullPath)) {
+      const { statSync } = require('fs');
+      const stats = statSync(fullPath);
+      if (stats.isFile()) {
+        return fullPath;
+      }
+    }
+  }
+  
+  // Try as directory with index files
+  if (existsSync(basePath)) {
+    const { statSync } = require('fs');
+    const stats = statSync(basePath);
+    if (stats.isDirectory()) {
+      for (const indexFile of indexFiles) {
+        const indexPath = join(basePath, indexFile);
+        if (existsSync(indexPath)) {
+          return indexPath;
+        }
+      }
+    }
+  }
+  
+  return null; // Could not resolve
+}
+
+/**
  * Convert import path to relative path from AppRoutes.tsx location
+ * Uses actual filesystem resolution to ensure accuracy
  */
 function convertImportToRelative(
   importLine: string,
@@ -172,16 +237,31 @@ function convertImportToRelative(
     return importLine;
   }
   
-  // Resolve the original path relative to appDir
-  const resolvedPath = resolve(appDir, originalPath);
+  // Resolve the import to actual file
+  const resolvedFile = resolveImportToFile(originalPath, appDir);
   
-  // Calculate relative path from appRoutesDir to resolvedPath
-  const relativePath = relative(appRoutesDir, resolvedPath);
+  if (!resolvedFile) {
+    // Fallback to old method if resolution fails
+    logWarning(`Could not resolve import "${originalPath}" to actual file, using original path`);
+    const resolvedPath = resolve(appDir, originalPath);
+    const relativePath = relative(appRoutesDir, resolvedPath);
+    const normalizedPath = relativePath.replace(/\\/g, '/');
+    const finalPath = normalizedPath.startsWith('.') ? normalizedPath : './' + normalizedPath;
+    return importLine.replace(originalPath, finalPath);
+  }
+  
+  // Calculate relative path from appRoutesDir to resolved file
+  const relativePath = relative(appRoutesDir, resolvedFile);
+  
+  // Remove extension for import (TypeScript/JavaScript imports don't include extensions)
+  const ext = extname(relativePath);
+  const pathWithoutExt = ext ? relativePath.slice(0, -ext.length) : relativePath;
   
   // Normalize the path (use forward slashes for imports)
-  const normalizedPath = relativePath.replace(/\\/g, '/');
+  const normalizedPath = pathWithoutExt.replace(/\\/g, '/');
   const finalPath = normalizedPath.startsWith('.') ? normalizedPath : './' + normalizedPath;
   
+  // Replace the original path in the import line
   return importLine.replace(originalPath, finalPath);
 }
 

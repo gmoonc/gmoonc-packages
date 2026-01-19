@@ -13,8 +13,7 @@ const program = new Command();
 program
   .name('gmoonc')
   .description('Goalmoon Ctrl (gmoonc): Install complete dashboard into your React project')
-  .version('0.0.6')
-  .option('--auto', 'Skip confirmations and install automatically (no prompts)')
+  .version('0.0.7')
   .option('--base <path>', 'Base path for dashboard routes', '/app')
   .option('--skip-router-patch', 'Skip automatic router integration (only copy files and inject CSS)')
   .option('--dry-run', 'Show what would be done without making changes')
@@ -28,9 +27,6 @@ program
       const basePath = options.base || '/app';
       const dryRun = options.dryRun || false;
       const skipRouterPatch = options.skipRouterPatch || false;
-      
-      // Handle auto flag
-      const autoInstall = options.auto || false;
 
       // Ensure basePath is not "/"
       const safeBasePath = basePath === '/' ? '/app' : basePath;
