@@ -780,3 +780,391 @@
     width: 100%;
   }
 }
+
+/* Account Page Styles (gmoonc-specific) */
+.gmoonc-account-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--gmoonc-color-bg-light, #eaf0f5);
+  min-height: 100vh;
+}
+
+/* Header */
+.gmoonc-account-header {
+  margin-bottom: 2.5rem;
+}
+
+.gmoonc-account-header .back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--gmoonc-color-text-primary, #374161);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+  font-family: var(--gmoonc-font-family);
+}
+
+.gmoonc-account-header .back-button:hover {
+  color: var(--gmoonc-color-accent, #71b399);
+  transform: translateX(-4px);
+}
+
+.gmoonc-account-header .header-content {
+  text-align: left;
+}
+
+.gmoonc-account-header .page-title {
+  font-family: var(--gmoonc-font-family);
+  font-weight: var(--gmoonc-font-weight-title, 700);
+  font-size: var(--gmoonc-font-size-2xl, 2rem);
+  color: var(--gmoonc-color-text-primary, #374161);
+  margin: 0 0 0.5rem 0;
+}
+
+.gmoonc-account-header .page-subtitle {
+  font-size: var(--gmoonc-font-size-base, 1rem);
+  color: var(--gmoonc-color-primary-2, #6374AD);
+  margin: 0;
+  font-family: var(--gmoonc-font-family);
+}
+
+/* Grid Layout */
+.gmoonc-account-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+/* Card */
+.gmoonc-account-card {
+  background: var(--gmoonc-color-surface-white, white);
+  border-radius: var(--gmoonc-radius, 12px);
+  padding: 2rem;
+  box-shadow: var(--gmoonc-shadow-md, 0 2px 12px rgba(55, 65, 97, 0.08));
+  transition: all 0.3s ease;
+}
+
+.gmoonc-account-card:hover {
+  box-shadow: var(--gmoonc-shadow-lg, 0 4px 20px rgba(55, 65, 97, 0.12));
+}
+
+/* Card Header */
+.gmoonc-account-card .card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--gmoonc-color-bg-light, #eaf0f5);
+}
+
+.gmoonc-account-card .card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--gmoonc-color-primary-2, #6374AD) 0%, var(--gmoonc-color-primary, #879FED) 100%);
+  color: white;
+  flex-shrink: 0;
+}
+
+.gmoonc-account-card .card-title {
+  font-family: var(--gmoonc-font-family);
+  font-weight: var(--gmoonc-font-weight-title, 700);
+  font-size: 1.3rem;
+  color: var(--gmoonc-color-text-primary, #374161);
+  margin: 0 0 0.25rem 0;
+}
+
+.gmoonc-account-card .card-description {
+  font-size: 0.9rem;
+  color: var(--gmoonc-color-primary-2, #6374AD);
+  margin: 0;
+  font-family: var(--gmoonc-font-family);
+}
+
+/* Form */
+.gmoonc-account-card .card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.gmoonc-account-card .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gmoonc-account-card .form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--gmoonc-font-family);
+  font-weight: var(--gmoonc-font-weight-heading, 600);
+  font-size: 0.9rem;
+  color: var(--gmoonc-color-text-primary, #374161);
+}
+
+.gmoonc-account-card .form-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--gmoonc-color-border, #dbe2ea);
+  border-radius: var(--gmoonc-radius-sm, 8px);
+  font-size: var(--gmoonc-font-size-base, 1rem);
+  color: var(--gmoonc-color-text-primary, #374161);
+  transition: all 0.2s ease;
+  background: var(--gmoonc-color-surface-white, white);
+  font-family: var(--gmoonc-font-family);
+}
+
+.gmoonc-account-card .form-input:focus {
+  outline: none;
+  border-color: var(--gmoonc-color-accent, #71b399);
+  box-shadow: 0 0 0 3px rgba(113, 179, 153, 0.1);
+}
+
+.gmoonc-account-card .form-input.disabled,
+.gmoonc-account-card .form-input:disabled {
+  background: var(--gmoonc-color-surface-light, #f8f9fa);
+  color: var(--gmoonc-color-primary, #879FED);
+  cursor: not-allowed;
+  border-color: var(--gmoonc-color-bg-light, #eaf0f5);
+}
+
+.gmoonc-account-card .form-hint {
+  font-size: 0.85rem;
+  color: var(--gmoonc-color-primary-2, #6374AD);
+  margin-top: 0.25rem;
+  font-family: var(--gmoonc-font-family);
+}
+
+/* Buttons */
+.gmoonc-account-card .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: var(--gmoonc-radius-sm, 0.5rem);
+  font-family: var(--gmoonc-font-family);
+  font-weight: var(--gmoonc-font-weight-heading, 600);
+  font-size: var(--gmoonc-font-size-base, 1rem);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.gmoonc-account-card .btn-primary {
+  background: var(--gmoonc-color-accent, #71b399);
+  color: var(--gmoonc-color-surface-white, white);
+}
+
+.gmoonc-account-card .btn-primary:hover:not(:disabled) {
+  background: #5d9b82;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(113, 179, 153, 0.3);
+}
+
+.gmoonc-account-card .btn-secondary {
+  background: var(--gmoonc-color-primary-2, #6374AD);
+  color: var(--gmoonc-color-surface-white, white);
+}
+
+.gmoonc-account-card .btn-secondary:hover:not(:disabled) {
+  background: var(--gmoonc-color-primary-dark, #374161);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(55, 65, 97, 0.3);
+}
+
+.gmoonc-account-card .btn:disabled {
+  background: var(--gmoonc-color-border, #dbe2ea);
+  color: var(--gmoonc-color-primary, #879FED);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Alerts */
+.gmoonc-account-card .alert {
+  padding: 1rem 1.25rem;
+  border-radius: var(--gmoonc-radius-sm, 8px);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  font-family: var(--gmoonc-font-family);
+}
+
+.gmoonc-account-card .alert-success {
+  background: var(--gmoonc-color-success-bg, #f0fdf4);
+  color: var(--gmoonc-color-success, #166534);
+  border-left: 4px solid var(--gmoonc-color-accent, #71b399);
+}
+
+.gmoonc-account-card .alert-error {
+  background: var(--gmoonc-color-error-bg, #fef2f2);
+  color: var(--gmoonc-color-error, #dc2626);
+  border-left: 4px solid var(--gmoonc-color-error, #dc2626);
+}
+
+/* Password Strength Indicator */
+.gmoonc-account-card .password-strength-container {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gmoonc-account-card .password-strength-bar {
+  flex: 1;
+  height: 6px;
+  background-color: var(--gmoonc-color-border, #dbe2ea);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.gmoonc-account-card .password-strength-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 3px;
+}
+
+.gmoonc-account-card .password-strength-label {
+  font-size: 13px;
+  font-weight: var(--gmoonc-font-weight-heading, 600);
+  min-width: 60px;
+  text-align: right;
+  font-family: var(--gmoonc-font-family);
+}
+
+/* Password Tips */
+.gmoonc-account-card .password-tips {
+  background: linear-gradient(135deg, rgba(99, 116, 173, 0.08), rgba(113, 179, 153, 0.08));
+  border: 1px solid rgba(99, 116, 173, 0.2);
+  border-radius: var(--gmoonc-radius, 12px);
+  padding: 16px 20px;
+  margin: 16px 0;
+}
+
+.gmoonc-account-card .password-tips-title {
+  color: var(--gmoonc-color-text-primary, #374161);
+  font-size: 14px;
+  font-weight: var(--gmoonc-font-weight-heading, 600);
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--gmoonc-font-family);
+}
+
+.gmoonc-account-card .password-tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gmoonc-account-card .password-tips-list li {
+  color: var(--gmoonc-color-primary-2, #6374AD);
+  font-size: 13px;
+  padding-left: 24px;
+  position: relative;
+  transition: color 0.3s ease;
+  font-family: var(--gmoonc-font-family);
+}
+
+.gmoonc-account-card .password-tips-list li::before {
+  content: "○";
+  position: absolute;
+  left: 8px;
+  color: var(--gmoonc-color-primary-2, #6374AD);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.gmoonc-account-card .password-tips-list li.tip-met {
+  color: var(--gmoonc-color-accent, #71b399);
+  font-weight: var(--gmoonc-font-weight-medium, 500);
+}
+
+.gmoonc-account-card .password-tips-list li.tip-met::before {
+  content: "✓";
+  color: var(--gmoonc-color-accent, #71b399);
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .gmoonc-account-page {
+    padding: 3rem 2rem;
+  }
+
+  .gmoonc-account-header .page-title {
+    font-size: 2.5rem;
+  }
+
+  .gmoonc-account-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gmoonc-account-card:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .gmoonc-account-card .btn {
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gmoonc-account-page {
+    padding: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .gmoonc-account-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .gmoonc-account-header .page-title {
+    font-size: 1.75rem;
+  }
+
+  .gmoonc-account-header .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .gmoonc-account-card {
+    padding: 1.5rem;
+  }
+
+  .gmoonc-account-card .card-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .gmoonc-account-card .card-title {
+    font-size: 1.1rem;
+  }
+
+  .gmoonc-account-card .card-description {
+    font-size: 0.85rem;
+  }
+
+  .gmoonc-account-card .btn {
+    width: 100%;
+  }
+}

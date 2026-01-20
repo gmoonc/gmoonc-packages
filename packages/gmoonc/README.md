@@ -63,6 +63,12 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.15
+- Feature: Complete Account page implementation (equivalent to Sicoop reference)
+- Feature: Personal Information, Account Security, and Change Email sections
+- Feature: Password strength indicator and recommendations
+- Feature: Responsive grid layout (desktop: 1+2 columns, mobile: stack)
+
 ### 0.0.14
 - Fix: Auth pages now have proper theme scoping (gmoonc-root class added)
 - Fix: Logo uses Vite-friendly import instead of public path
