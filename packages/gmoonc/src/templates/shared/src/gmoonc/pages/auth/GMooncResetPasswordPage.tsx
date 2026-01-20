@@ -36,7 +36,7 @@ export function GMooncResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="gmoonc-auth-page">
+      <div className="gmoonc-root gmoonc-auth-page">
         <div className="gmoonc-auth-card">
           <div className="gmoonc-auth-header">
             <h1>Password Reset</h1>
@@ -52,7 +52,7 @@ export function GMooncResetPasswordPage() {
   }
 
   return (
-    <div className="gmoonc-auth-page">
+    <div className="gmoonc-root gmoonc-auth-page">
       <div className="gmoonc-auth-card">
         <div className="gmoonc-auth-header">
           <h1>Reset Password</h1>

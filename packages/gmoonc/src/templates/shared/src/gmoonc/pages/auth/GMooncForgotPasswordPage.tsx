@@ -21,7 +21,7 @@ export function GMooncForgotPasswordPage() {
 
   if (isSent) {
     return (
-      <div className="gmoonc-auth-page">
+      <div className="gmoonc-root gmoonc-auth-page">
         <div className="gmoonc-auth-card">
           <div className="gmoonc-auth-header">
             <h1>Email Sent</h1>
@@ -46,7 +46,7 @@ export function GMooncForgotPasswordPage() {
   }
 
   return (
-    <div className="gmoonc-auth-page">
+    <div className="gmoonc-root gmoonc-auth-page">
       <div className="gmoonc-auth-card">
         <div className="gmoonc-auth-header">
           <h1>Recover Password</h1>

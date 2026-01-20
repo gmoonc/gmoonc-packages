@@ -43,7 +43,7 @@ export function GMooncRegisterPage() {
   };
 
   return (
-    <div className="gmoonc-auth-page">
+    <div className="gmoonc-root gmoonc-auth-page">
       <div className="gmoonc-auth-card">
         <div className="gmoonc-auth-header">
           <h1>Create Account</h1>

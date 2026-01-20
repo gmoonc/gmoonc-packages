@@ -63,6 +63,17 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.14
+- Fix: Auth pages now have proper theme scoping (gmoonc-root class added)
+- Fix: Logo uses Vite-friendly import instead of public path
+
+### 0.0.13
+- Fix: Logo navigation to basePath (dynamic, not hardcoded)
+- Fix: Submenu item colors (dark, legible text)
+- Fix: UserEdit page styles aligned with reference
+- Fix: Account page completed with proper styling
+- Fix: Permissions modals typography using CSS tokens
+
 ### 0.0.12
 - Feature: Logo in menu header (replaces "Home" item)
 - Fix: Rename defaultMenu.ts to .tsx (fixes build error with JSX)

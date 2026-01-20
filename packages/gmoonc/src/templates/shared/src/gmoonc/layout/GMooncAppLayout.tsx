@@ -4,6 +4,7 @@ import { GmooncShell } from '../ui/shell';
 import { defaultConfig } from '../config/defaultConfig';
 import { GMooncSessionProvider, useGMooncSession } from '../session/GMooncSessionContext';
 import { GMooncUserProfile } from '../components/GMooncUserProfile';
+import logoUrl from '../assets/gmoonc-logo.png';
 
 function GMooncAppLayoutInner() {
   const location = useLocation();
@@ -60,7 +61,7 @@ function GMooncAppLayoutInner() {
             onLogoutRequest={handleLogout}
           />
         }
-        logoUrl="/gmoonc/assets/gmoonc-logo.png"
+        logoUrl={logoUrl}
         logoAlt="GMoonc"
         renderLink={({ path, label, isActive, onClick, className, children }) => (
           <Link
