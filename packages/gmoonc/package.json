@@ -1,6 +1,6 @@
 {
   "name": "gmoonc",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Goalmoon Ctrl (gmoonc): Complete dashboard installer for React projects",
   "license": "MIT",
   "homepage": "https://gmoonc.com",
@@ -19,6 +19,7 @@
   "files": [
     "dist",
     "src/templates",
+    "assets",
     "scripts",
     "README.md",
     "LICENSE"
@@ -32,10 +33,13 @@
     "postinstall": "node scripts/block-global-install.cjs"
   },
   "dependencies": {
-    "commander": "^12.0.0"
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/pg": "^8.10.9",
     "rimraf": "^6.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"

@@ -37,6 +37,44 @@ npx gmoonc --base /dashboard
 - `--skip-router-patch`: Skip automatic router integration (only copy files and inject CSS)
 - `--dry-run`: Show what would be done without making changes
 
+## Supabase Integration
+
+### Setup Supabase Auth + RBAC
+
+```bash
+npx gmoonc supabase --vite
+```
+
+This command:
+- Installs `@supabase/supabase-js` dependency
+- Generates Supabase client, env validation, and RBAC helpers
+- Creates/updates `.env.example` with Supabase variables
+- Automatically patches existing code to use Supabase provider
+
+### Seed Database
+
+After setting up Supabase integration, seed your database with the complete schema:
+
+```bash
+npx gmoonc supabase-seed --vite
+```
+
+**Prerequisites:**
+- `gmoonc` must be installed (`npx gmoonc`)
+- `supabase --vite` must have been executed
+- `.env.local` must contain `SUPABASE_DB_URL` (connection string from Supabase Dashboard → Settings → Database)
+
+**What it does:**
+- Executes SQL files in order: tables → functions/triggers → RLS → seed data
+- Creates marker file `.gmoonc/supabase-seed.json` to prevent duplicate execution
+- One-shot by default (delete marker to re-seed)
+
+**To get `SUPABASE_DB_URL`:**
+1. Go to your Supabase project dashboard
+2. Navigate to Settings → Database
+3. Copy the "Connection string (URI)"
+4. Add to `.env.local` as: `SUPABASE_DB_URL=postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres`
+
 ## After installation
 
 Your dashboard is now available at:
@@ -62,6 +100,13 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 - **No prompts**: The installer runs automatically without any flags like `--yes` or `--auto`.
 
 ## Changelog
+
+### 0.0.22
+- Feature: New `supabase-seed --vite` command to seed Supabase database
+- Feature: Automatic SQL file execution (tables, functions, RLS, seed data)
+- Feature: One-shot protection with marker file
+- Feature: SQL files copied to project for transparency
+- Feature: SUPABASE_DB_URL added to .env.example
 
 ### 0.0.21
 - Fix: Navigate import now always added when route protection is present in GMooncAppLayout.tsx

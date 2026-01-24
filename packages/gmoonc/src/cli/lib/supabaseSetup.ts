@@ -993,9 +993,13 @@ export type { UserPermission } from './getUserPermissions';
 
 function updateEnvExample(projectDir: string): void {
   const envExamplePath = join(projectDir, '.env.example');
-  const envExampleContent = `# Supabase Configuration
+  const envExampleContent = `# Supabase Configuration (Client-side)
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
+
+# Supabase Database Connection (Server-only, for seeding)
+# Get this from Supabase Dashboard → Settings → Database → Connection string (URI)
+SUPABASE_DB_URL=
 `;
 
   // Check if .env.example exists

@@ -10,13 +10,14 @@ import { patchBrowserRouter } from './lib/patchBrowserRouter.js';
 import { logInfo, logSuccess, logError, logWarning } from './lib/logger.js';
 import { ensureDirectoryExists } from './lib/fs.js';
 import { setupSupabase } from './lib/supabaseSetup.js';
+import { seedSupabase } from './lib/supabaseSeedVite.js';
 
 const program = new Command();
 
 program
   .name('gmoonc')
   .description('Goalmoon Ctrl (gmoonc): Install complete dashboard into your React project')
-  .version('0.0.21')
+  .version('0.0.22')
   .option('--base <path>', 'Base path for dashboard routes', '/app')
   .option('--skip-router-patch', 'Skip automatic router integration (only copy files and inject CSS)')
   .option('--dry-run', 'Show what would be done without making changes')
@@ -191,6 +192,50 @@ program
       if (!result.success) {
         process.exit(1);
       }
+
+    } catch (error: any) {
+      logError(`Error: ${error.message}`);
+      if (error.stack && process.env.DEBUG) {
+        console.error(error.stack);
+      }
+      process.exit(1);
+    }
+  });
+
+// Supabase seed subcommand
+program
+  .command('supabase-seed')
+  .description('Seed Supabase database with schema, RLS, functions, and initial data')
+  .option('--vite', 'Seed for Vite projects')
+  .action(async (options) => {
+    try {
+      logInfo('🌱 Starting Supabase database seeding...');
+
+      const projectDir = cwd();
+      const dryRun = false; // No dry-run for seed command
+
+      // Validate platform flag
+      if (!options.vite) {
+        logError('Missing platform flag. Use: gmoonc supabase-seed --vite (Next will be added later).');
+        process.exit(1);
+      }
+
+      // Seed database
+      const result = await seedSupabase({
+        projectDir,
+        dryRun
+      });
+
+      if (!result.success) {
+        process.exit(1);
+      }
+
+      logSuccess('\n✅ Database seeding complete!');
+      logInfo('\nYour Supabase database is now ready with:');
+      logInfo('  - Tables (profiles, roles, modules, permissions, etc.)');
+      logInfo('  - Functions and triggers');
+      logInfo('  - Row Level Security (RLS) policies');
+      logInfo('  - Initial seed data (Apollo user)');
 
     } catch (error: any) {
       logError(`Error: ${error.message}`);
