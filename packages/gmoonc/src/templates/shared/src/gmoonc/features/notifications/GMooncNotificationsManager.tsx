@@ -1283,19 +1283,8 @@ export function GMooncNotificationsManager() {
                         <div className="text-xs text-[#6374AD] space-y-1">
                           <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{name}}'}</code> - Sender name</div>
                           <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{email}}'}</code> - Sender email</div>
-                          <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{company_farm}}'}</code> - Company/Farm</div>
+                          <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{company}}'}</code> - Company</div>
                           <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{message}}'}</code> - Content</div>
-                          <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{status}}'}</code> - Status</div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white border border-[#dbe2ea] rounded p-3">
-                        <h5 className="text-xs font-semibold text-[#374161] mb-2">For Analyses:</h5>
-                        <div className="text-xs text-[#6374AD] space-y-1">
-                          <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{name}}'}</code> - Requester name</div>
-                          <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{email}}'}</code> - Email</div>
-                          <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{farm_name}}'}</code> - Farm name</div>
-                          <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{farm_area_ha}}'}</code> - Area in ha</div>
                           <div><code className="bg-[#eaf0f5] px-1.5 py-0.5 rounded">{'{{status}}'}</code> - Status</div>
                         </div>
                       </div>

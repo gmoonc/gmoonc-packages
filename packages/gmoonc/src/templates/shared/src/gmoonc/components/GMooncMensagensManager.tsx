@@ -38,7 +38,7 @@ export function GMooncMensagensManager() {
         const searchableFields = [
           mensagem.nome,
           mensagem.email,
-          mensagem.empresa_fazenda,
+          mensagem.company,
           mensagem.mensagem
         ].filter(Boolean).join(' ').toLowerCase();
         
@@ -370,7 +370,7 @@ export function GMooncMensagensManager() {
                   <th className="px-4 xl:px-6 py-3 text-left text-xs xl:text-sm font-semibold text-white">Name</th>
                   <th className="px-4 xl:px-6 py-3 text-left text-xs xl:text-sm font-semibold text-white">Email</th>
                   <th className="px-4 xl:px-6 py-3 text-left text-xs xl:text-sm font-semibold text-white">Phone</th>
-                  <th className="px-4 xl:px-6 py-3 text-left text-xs xl:text-sm font-semibold text-white">Company/Farm</th>
+                  <th className="px-4 xl:px-6 py-3 text-left text-xs xl:text-sm font-semibold text-white">Company</th>
                   <th className="px-4 xl:px-6 py-3 text-left text-xs xl:text-sm font-semibold text-white">Status</th>
                   <th className="px-4 xl:px-6 py-3 text-left text-xs xl:text-sm font-semibold text-white">Created At</th>
                   <th className="px-4 xl:px-6 py-3 text-center text-xs xl:text-sm font-semibold text-white">Actions</th>
@@ -386,7 +386,7 @@ export function GMooncMensagensManager() {
                     <td className="px-4 xl:px-6 py-3 text-xs xl:text-sm text-[#374161]">
                       {mensagem.telefone || '-'}
                     </td>
-                    <td className="px-4 xl:px-6 py-3 text-xs xl:text-sm text-[#374161]">{mensagem.empresa_fazenda}</td>
+                    <td className="px-4 xl:px-6 py-3 text-xs xl:text-sm text-[#374161]">{mensagem.company}</td>
                     <td className="px-4 xl:px-6 py-3">
                       {getStatusBadge(mensagem.status)}
                     </td>
@@ -460,7 +460,7 @@ export function GMooncMensagensManager() {
                 </div>
                 <div className="flex items-center text-xs">
                   <span className="text-[#6374AD] font-medium w-20">Company:</span>
-                  <span className="text-[#374161] truncate">{mensagem.empresa_fazenda}</span>
+                  <span className="text-[#374161] truncate">{mensagem.company}</span>
                 </div>
                 <div className="flex items-center text-xs">
                   <span className="text-[#6374AD] font-medium w-20">Created:</span>
@@ -526,8 +526,8 @@ export function GMooncMensagensManager() {
                   <p className="text-sm text-[#374161]">{mensagem.telefone || '-'}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-[#6374AD] font-medium">Company/Farm</span>
-                  <p className="text-sm text-[#374161]">{mensagem.empresa_fazenda}</p>
+                  <span className="text-xs text-[#6374AD] font-medium">Company</span>
+                  <p className="text-sm text-[#374161]">{mensagem.company}</p>
                 </div>
                 <div>
                   <span className="text-xs text-[#6374AD] font-medium">Message</span>

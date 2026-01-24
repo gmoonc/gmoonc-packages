@@ -4,7 +4,7 @@ export interface Mensagem {
   nome: string;
   email: string;
   telefone: string | null;
-  empresa_fazenda: string;
+  company: string;
   mensagem: string;
   status: string | null;
   created_at: string | null;
@@ -15,7 +15,7 @@ export interface MensagemFormData {
   nome: string;
   email: string;
   telefone: string;
-  empresa_fazenda: string;
+  company: string;
   mensagem: string;
 }
 

@@ -54,7 +54,7 @@ export function useGMooncMensagens(): UseGMooncMensagensReturn {
         nome: data.nome,
         email: data.email,
         telefone: data.telefone || null,
-        empresa_fazenda: data.empresa_fazenda,
+        company: data.company,
         mensagem: data.mensagem,
         status: 'pendente',
         created_at: new Date().toISOString(),

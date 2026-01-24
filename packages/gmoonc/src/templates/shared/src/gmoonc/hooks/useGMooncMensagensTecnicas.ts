@@ -31,7 +31,7 @@ let mockMensagens: Mensagem[] = [
     nome: 'John Doe',
     email: 'john@example.com',
     telefone: '123456789',
-    empresa_fazenda: 'Company A',
+    company: 'Company A',
     mensagem: 'Test message',
     status: 'pendente',
     created_at: new Date().toISOString(),

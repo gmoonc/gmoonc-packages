@@ -31,7 +31,7 @@ export function GMooncMensagensTecnicasManager() {
     nome: '',
     email: '',
     telefone: '',
-    empresa_fazenda: '',
+    company: '',
     mensagem: ''
   });
 
@@ -62,7 +62,7 @@ export function GMooncMensagensTecnicasManager() {
           nome: editingMensagem.nome,
           email: editingMensagem.email,
           telefone: editingMensagem.telefone || '',
-          empresa_fazenda: editingMensagem.empresa_fazenda,
+          company: editingMensagem.company,
           mensagem: editingMensagem.mensagem,
           status: editingMensagem.status
         };
@@ -121,8 +121,8 @@ export function GMooncMensagensTecnicasManager() {
         return;
       }
 
-      if (!newMensagem.empresa_fazenda.trim()) {
-        alert('Company/Farm is required');
+      if (!newMensagem.company.trim()) {
+        alert('Company is required');
         return;
       }
 
@@ -136,7 +136,7 @@ export function GMooncMensagensTecnicasManager() {
         nome: newMensagem.nome.trim(),
         email: newMensagem.email.trim(),
         telefone: newMensagem.telefone.trim() || null,
-        empresa_fazenda: newMensagem.empresa_fazenda.trim(),
+        company: newMensagem.company.trim(),
         mensagem: newMensagem.mensagem.trim(),
         user_id: null,
         status: 'pendente'
@@ -150,7 +150,7 @@ export function GMooncMensagensTecnicasManager() {
           nome: '',
           email: '',
           telefone: '',
-          empresa_fazenda: '',
+          company: '',
           mensagem: ''
         });
       }
@@ -165,7 +165,7 @@ export function GMooncMensagensTecnicasManager() {
       nome: '',
       email: '',
       telefone: '',
-      empresa_fazenda: '',
+      company: '',
       mensagem: ''
     });
   }, []);
@@ -173,7 +173,7 @@ export function GMooncMensagensTecnicasManager() {
   const filteredMensagens = mensagens.filter(mensagem => {
     const matchesSearch = mensagem.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mensagem.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mensagem.empresa_fazenda.toLowerCase().includes(searchTerm.toLowerCase());
+      mensagem.company.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = !statusFilter || mensagem.status === statusFilter;
 
@@ -405,7 +405,7 @@ export function GMooncMensagensTecnicasManager() {
                   Client
                 </th>
                 <th className="px-3 xl:px-4 py-3 text-left text-xs xl:text-sm font-semibold text-[#374161] uppercase tracking-wider">
-                  Company/Farm
+                  Company
                 </th>
                 <th className="px-3 xl:px-4 py-3 text-left text-xs xl:text-sm font-semibold text-[#374161] uppercase tracking-wider">
                   Status
@@ -437,7 +437,7 @@ export function GMooncMensagensTecnicasManager() {
                     </div>
                   </td>
                   <td className="px-3 xl:px-4 py-3">
-                    <div className="text-xs xl:text-sm font-medium text-[#374161]">{mensagem.empresa_fazenda}</div>
+                    <div className="text-xs xl:text-sm font-medium text-[#374161]">{mensagem.company}</div>
                   </td>
                   <td className="px-3 xl:px-4 py-3">
                     <select
@@ -543,8 +543,8 @@ export function GMooncMensagensTecnicasManager() {
             </div>
 
             <div className="mb-2">
-              <div className="text-xs font-medium text-[#374161] opacity-60 mb-0.5">Company/Farm</div>
-              <div className="text-xs font-semibold text-[#374161] truncate">{mensagem.empresa_fazenda}</div>
+              <div className="text-xs font-medium text-[#374161] opacity-60 mb-0.5">Company</div>
+              <div className="text-xs font-semibold text-[#374161] truncate">{mensagem.company}</div>
             </div>
 
             <div className="mb-2">
@@ -658,8 +658,8 @@ export function GMooncMensagensTecnicasManager() {
             </div>
 
             <div className="mb-3">
-              <div className="text-xs font-medium text-[#374161] opacity-60 mb-1">Company/Farm</div>
-              <div className="text-sm font-semibold text-[#374161]">{mensagem.empresa_fazenda}</div>
+              <div className="text-xs font-medium text-[#374161] opacity-60 mb-1">Company</div>
+              <div className="text-sm font-semibold text-[#374161]">{mensagem.company}</div>
             </div>
 
             <div className="mb-3">
@@ -772,11 +772,11 @@ export function GMooncMensagensTecnicasManager() {
               </div>
 
               <div>
-                <label className="block text-xs md:text-sm font-semibold text-[#374161] mb-1">Company/Farm</label>
+                <label className="block text-xs md:text-sm font-semibold text-[#374161] mb-1">Company</label>
                 <input
                   type="text"
-                  value={editingMensagem.empresa_fazenda}
-                  onChange={(e) => setEditingMensagem({ ...editingMensagem, empresa_fazenda: e.target.value })}
+                  value={editingMensagem.company}
+                  onChange={(e) => setEditingMensagem({ ...editingMensagem, company: e.target.value })}
                   className="w-full px-3 py-2 text-sm border border-[#dbe2ea] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6374AD] text-[#374161] bg-white"
                 />
               </div>
@@ -874,14 +874,14 @@ export function GMooncMensagensTecnicasManager() {
 
               <div>
                 <label className="block text-xs md:text-sm font-semibold text-[#374161] mb-1">
-                  Company/Farm <span className="text-red-500">*</span>
+                  Company <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  value={newMensagem.empresa_fazenda}
-                  onChange={(e) => setNewMensagem({ ...newMensagem, empresa_fazenda: e.target.value })}
+                  value={newMensagem.company}
+                  onChange={(e) => setNewMensagem({ ...newMensagem, company: e.target.value })}
                   className="w-full px-3 py-2 text-sm border border-[#dbe2ea] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6374AD] text-[#374161] bg-white"
-                  placeholder="Your company or farm name"
+                  placeholder="Your company name"
                 />
               </div>
             </div>
@@ -921,7 +921,7 @@ export function GMooncMensagensTecnicasManager() {
               </button>
               <button
                 onClick={handleCreateMensagem}
-                disabled={!newMensagem.nome || !newMensagem.email || !newMensagem.empresa_fazenda || !newMensagem.mensagem || loading}
+                disabled={!newMensagem.nome || !newMensagem.email || !newMensagem.company || !newMensagem.mensagem || loading}
                 className="px-4 py-2 bg-[#71B399] text-white rounded-lg hover:bg-[#5fa085] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center space-x-2"
               >
                 <span>▲</span>

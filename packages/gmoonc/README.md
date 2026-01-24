@@ -63,6 +63,12 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.16
+- Fix: Removed "farm" references from message forms - changed "Company/Farm" to "Company" throughout
+- Fix: Updated field name from `empresa_fazenda`/`company_farm` to `company` in all message-related components
+- Fix: Updated placeholder text from "Your company or farm name" to "Your company name"
+- Fix: Updated notification template variables from `{{company_farm}}` to `{{company}}`
+
 ### 0.0.15
 - Feature: Complete Account page implementation (equivalent to Sicoop reference)
 - Feature: Personal Information, Account Security, and Change Email sections

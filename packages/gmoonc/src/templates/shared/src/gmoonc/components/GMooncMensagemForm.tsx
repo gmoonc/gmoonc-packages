@@ -14,7 +14,7 @@ export function GMooncMensagemForm({ initialData, onSubmit, onCancel }: GMooncMe
     nome: '',
     email: '',
     telefone: '',
-    empresa_fazenda: '',
+    company: '',
     mensagem: ''
   });
   const [errors, setErrors] = useState<Partial<MensagemFormData>>({});
@@ -29,7 +29,7 @@ export function GMooncMensagemForm({ initialData, onSubmit, onCancel }: GMooncMe
         nome: initialData.nome,
         email: initialData.email,
         telefone: initialData.telefone || '',
-        empresa_fazenda: initialData.empresa_fazenda,
+        company: initialData.company,
         mensagem: initialData.mensagem
       });
     } else if (user) {
@@ -57,8 +57,8 @@ export function GMooncMensagemForm({ initialData, onSubmit, onCancel }: GMooncMe
       newErrors.email = 'Invalid email';
     }
 
-    if (!formData.empresa_fazenda.trim()) {
-      newErrors.empresa_fazenda = 'Company/Farm is required';
+    if (!formData.company.trim()) {
+      newErrors.company = 'Company is required';
     }
 
     if (!formData.mensagem.trim()) {
@@ -143,20 +143,20 @@ export function GMooncMensagemForm({ initialData, onSubmit, onCancel }: GMooncMe
             />
           </div>
 
-          {/* Empresa/Fazenda */}
+          {/* Company */}
           <div className="form-group">
-            <label htmlFor="empresa_fazenda" className="form-label block text-sm font-medium text-gray-700 mb-2">
-              Company/Farm <span className="required text-red-500">*</span>
+            <label htmlFor="company" className="form-label block text-sm font-medium text-gray-700 mb-2">
+              Company <span className="required text-red-500">*</span>
             </label>
             <input
-              id="empresa_fazenda"
+              id="company"
               type="text"
-              placeholder="Your company or farm name"
-              value={formData.empresa_fazenda}
-              onChange={(e) => handleInputChange('empresa_fazenda', e.target.value)}
-              className={`form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-900 ${errors.empresa_fazenda ? 'border-red-500' : ''}`}
+              placeholder="Your company name"
+              value={formData.company}
+              onChange={(e) => handleInputChange('company', e.target.value)}
+              className={`form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-900 ${errors.company ? 'border-red-500' : ''}`}
             />
-            {errors.empresa_fazenda && <span className="error-message text-red-600 text-sm mt-1 block">{errors.empresa_fazenda}</span>}
+            {errors.company && <span className="error-message text-red-600 text-sm mt-1 block">{errors.company}</span>}
           </div>
 
           {/* Mensagem */}
