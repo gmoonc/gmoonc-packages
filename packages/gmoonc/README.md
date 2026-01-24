@@ -63,6 +63,10 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.20
+- Fix: Navigate import now always added to GMooncAppLayout.tsx when patching
+- Fix: Improved Navigate import detection and addition logic
+
 ### 0.0.19
 - Fix: Added Navigate import to GMooncAppLayout.tsx template
 - Fix: Corrected route protection order - isLoading checked before isAuthenticated
