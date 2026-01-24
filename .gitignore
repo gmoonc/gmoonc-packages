@@ -43,6 +43,7 @@ backups/
 *.dump
 *-with-credentials.*
 *.local
+*.zip
 
 # Supabase sensitive files
 deploy-db.sh
