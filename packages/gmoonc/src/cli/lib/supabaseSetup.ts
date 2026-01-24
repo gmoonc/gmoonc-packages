@@ -1,5 +1,5 @@
-import { join } from 'path';
-import { existsSync, readFileSync } from 'fs';
+import { join, relative, dirname } from 'path';
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { execSync } from 'child_process';
 import { ProjectInfo } from './detect.js';
 import { ensureDirectoryExists, writeFileSafe } from './fs.js';
@@ -1067,25 +1067,21 @@ function patchExistingCode(projectDir: string, gmooncDir: string): void {
     // Replace usage
     content = content.replace(/GMooncSessionProvider/g, 'GMooncSupabaseSessionProvider');
     
-    // Add route protection if not already present
-    if (!content.includes('!isLoading && !isAuthenticated')) {
-      // Find the line with const { roles, logout } = useGMooncSession();
-      content = content.replace(
-        /const\s+{\s*roles,\s*logout\s*}\s+=\s+useGMooncSession\(\);/,
-        "const { roles, logout, isLoading, isAuthenticated } = useGMooncSession();"
-      );
-      
-      // Add protection before return statement in GMooncAppLayoutInner
-      content = content.replace(
-        /(\s+}, \[navigate, getBasePath\]\);)\s+(\s+return\s+\()/,
-        `$1
+      // Add route protection if not already present
+      if (!content.includes('!isAuthenticated')) {
+        // Find the line with const { roles, logout } = useGMooncSession();
+        content = content.replace(
+          /const\s+{\s*roles,\s*logout\s*}\s+=\s+useGMooncSession\(\);/,
+          "const { roles, logout, isLoading, isAuthenticated } = useGMooncSession();"
+        );
+        
+        // Add protection before return statement in GMooncAppLayoutInner
+        // Order: isLoading first, then isAuthenticated
+        content = content.replace(
+          /(\s+}, \[navigate, getBasePath\]\);)\s+(\s+return\s+\()/,
+          `$1
 
-  // Route protection: redirect to login if not authenticated
-  if (!isLoading && !isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Show loading state while checking authentication
+  // Show loading state while checking authentication (verificar primeiro)
   if (isLoading) {
     return (
       <div className="gmoonc-root">
@@ -1103,15 +1099,130 @@ function patchExistingCode(projectDir: string, gmooncDir: string): void {
     );
   }
 
+  // Route protection: redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
 $2`
-      );
-    }
+        );
+      } else {
+        // Fix order if protection already exists but order is wrong
+        // Replace incorrect order (!isLoading && !isAuthenticated) with correct order
+        content = content.replace(
+          /\/\/ Route protection: redirect to login if not authenticated\s+if\s+\(!isLoading\s+&&\s+!isAuthenticated\)\s+\{[\s\S]*?return\s+<Navigate[^>]+>;[\s\S]*?\}\s+(\/\/ Show loading state)/,
+          `// Show loading state while checking authentication (verificar primeiro)
+  if (isLoading) {
+    return (
+      <div className="gmoonc-root">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          fontSize: 'var(--gmoonc-font-size-base, 16px)',
+          color: 'var(--gmoonc-color-text, #333)'
+        }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  // Route protection: redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+$1`
+        );
+      }
     
     writeFileSafe(layoutPath, content);
     logSuccess('Patched layout/GMooncAppLayout.tsx to use GMooncSupabaseSessionProvider and add route protection');
   }
 
-  // Note: GMooncLoginPage and GMooncLogoutPage use useGMooncSession hook
-  // which will automatically use the new provider - no patching needed
-  logInfo('Auth pages will use Supabase via GMooncSupabaseSessionProvider');
+  // Update all imports from old session context to new Supabase provider
+  updateAllSessionImports(gmooncDir);
+}
+
+/**
+ * Update all imports from session/GMooncSessionContext to supabase/auth/GMooncSupabaseSessionProvider
+ * in all .ts and .tsx files within gmoonc directory
+ */
+function updateAllSessionImports(gmooncDir: string): void {
+  const filesToUpdate: string[] = [];
+  
+  // Recursively find all .ts and .tsx files
+  function findFiles(dir: string): void {
+    if (!existsSync(dir)) return;
+    
+    const entries = readdirSync(dir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = join(dir, entry.name);
+      
+      // Skip backup files and supabase directory (already correct)
+      if (entry.name.includes('.bak-') || entry.name === 'supabase') {
+        continue;
+      }
+      
+      if (entry.isDirectory()) {
+        findFiles(fullPath);
+      } else if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))) {
+        filesToUpdate.push(fullPath);
+      }
+    }
+  }
+  
+  findFiles(gmooncDir);
+  
+  let updatedCount = 0;
+  
+  for (const filePath of filesToUpdate) {
+    let content = readFileSync(filePath, 'utf-8');
+    let modified = false;
+    
+    // Calculate relative path from file to supabase/auth/GMooncSupabaseSessionProvider
+    const fileDir = dirname(filePath);
+    const supabaseProviderPath = join(gmooncDir, 'supabase', 'auth', 'GMooncSupabaseSessionProvider');
+    let relativePath = relative(fileDir, supabaseProviderPath).replace(/\\/g, '/');
+    
+    // Ensure path starts with ./ if it doesn't already
+    if (!relativePath.startsWith('.')) {
+      relativePath = './' + relativePath;
+    }
+    
+    // Pattern 1: import { useGMooncSession } from '../session/GMooncSessionContext'
+    // Pattern 2: import { GMooncSessionProvider, useGMooncSession } from '../session/GMooncSessionContext'
+    // Pattern 3: import { useGMooncSession } from '../../session/GMooncSessionContext'
+    // etc.
+    const oldImportPattern = /from\s+['"](\.\.?\/)+session\/GMooncSessionContext['"]/g;
+    
+    if (oldImportPattern.test(content)) {
+      // Replace the import path - preserve the import statement structure
+      content = content.replace(
+        /from\s+['"](\.\.?\/)+session\/GMooncSessionContext['"]/g,
+        `from '${relativePath}'`
+      );
+      modified = true;
+    }
+    
+    // Also handle if GMooncSessionProvider is imported (should be replaced with GMooncSupabaseSessionProvider)
+    if (content.includes('GMooncSessionProvider') && !content.includes('GMooncSupabaseSessionProvider')) {
+      content = content.replace(/GMooncSessionProvider/g, 'GMooncSupabaseSessionProvider');
+      modified = true;
+    }
+    
+    if (modified) {
+      writeFileSafe(filePath, content);
+      updatedCount++;
+    }
+  }
+  
+  if (updatedCount > 0) {
+    logSuccess(`Updated ${updatedCount} file(s) to use GMooncSupabaseSessionProvider`);
+  } else {
+    logInfo('All files already use GMooncSupabaseSessionProvider');
+  }
 }

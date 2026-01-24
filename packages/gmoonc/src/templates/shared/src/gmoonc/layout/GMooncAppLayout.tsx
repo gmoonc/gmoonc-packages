@@ -47,12 +47,7 @@ function GMooncAppLayoutInner() {
     navigate(normalizedBasePath);
   }, [navigate, getBasePath]);
 
-  // Route protection: redirect to login if not authenticated
-  if (!isLoading && !isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Show loading state while checking authentication
+  // Show loading state while checking authentication (verificar primeiro)
   if (isLoading) {
     return (
       <div className="gmoonc-root">
@@ -68,6 +63,11 @@ function GMooncAppLayoutInner() {
         </div>
       </div>
     );
+  }
+
+  // Route protection: redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
 
   return (

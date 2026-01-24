@@ -63,6 +63,12 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.19
+- Fix: Added Navigate import to GMooncAppLayout.tsx template
+- Fix: Corrected route protection order - isLoading checked before isAuthenticated
+- Fix: Automatic update of all session context imports to use GMooncSupabaseSessionProvider
+- Fix: All components now use Supabase provider instead of mock context
+
 ### 0.0.18
 - Fix: env.ts no longer throws when .env is missing - only logs warning
 - Fix: client.ts import corrected - hasSupabaseEnv imported from env.ts
