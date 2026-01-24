@@ -101,6 +101,12 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.23
+- Fix: Improved package root detection for SQL files in supabase-seed command
+- Fix: Added validation to check SQL files exist before attempting to copy
+- Fix: Better error messages showing where SQL files are being searched
+- Fix: SQL files are now correctly located when package is installed from npm
+
 ### 0.0.22
 - Feature: New `supabase-seed --vite` command to seed Supabase database
 - Feature: Automatic SQL file execution (tables, functions, RLS, seed data)

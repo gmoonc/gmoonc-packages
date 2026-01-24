@@ -5,21 +5,64 @@ import { config } from 'dotenv';
 import { logInfo, logSuccess, logError, logWarning } from './logger.js';
 import { ensureDirectoryExists } from './fs.js';
 
-// Get package root (go up from dist/cli/lib to packages/gmoonc)
-// In runtime, this will be dist/cli/lib, so we go up 3 levels
-// In development, this will be src/cli/lib, so we go up 3 levels
+// Get package root - works both in development and when installed
+// When installed: node_modules/gmoonc/dist/cli/lib -> ../../.. = node_modules/gmoonc
+// In development: packages/gmoonc/dist/cli/lib -> ../../.. = packages/gmoonc
 function getPackageRoot(): string {
-  // Try to resolve from current file location
-  // In CommonJS, __dirname is available
-  try {
-    // @ts-ignore - __dirname is available in CommonJS context
-    const currentDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
-    // Go up from dist/cli/lib or src/cli/lib to packages/gmoonc
-    return join(currentDir, '../../..');
-  } catch {
-    // Fallback: assume we're in node_modules/gmoonc
-    return join(process.cwd(), 'node_modules', 'gmoonc');
+  // Try multiple strategies to find the package root
+  const possiblePaths = [
+    // Strategy 1: From __dirname (when running from dist/cli/lib)
+    (() => {
+      try {
+        // @ts-ignore - __dirname is available in CommonJS context
+        if (typeof __dirname !== 'undefined') {
+          // From dist/cli/lib, go up 2 levels to get to package root
+          const distPath = join(__dirname, '../..');
+          if (existsSync(join(distPath, 'package.json'))) {
+            return distPath;
+          }
+        }
+      } catch {}
+      return null;
+    })(),
+    // Strategy 2: From node_modules (when installed)
+    join(process.cwd(), 'node_modules', 'gmoonc'),
+    // Strategy 3: From packages (when in monorepo dev)
+    join(process.cwd(), 'packages', 'gmoonc'),
+    // Strategy 4: Try to find by looking for package.json with name "gmoonc"
+    (() => {
+      // @ts-ignore - __dirname is available in CommonJS context
+      let current = (typeof __dirname !== 'undefined' ? __dirname : process.cwd());
+      for (let i = 0; i < 5; i++) {
+        const pkgPath = join(current, 'package.json');
+        if (existsSync(pkgPath)) {
+          try {
+            const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+            if (pkg.name === 'gmoonc') {
+              return current;
+            }
+          } catch {}
+        }
+        current = join(current, '..');
+      }
+      return null;
+    })()
+  ];
+
+  for (const path of possiblePaths) {
+    if (path && existsSync(join(path, 'package.json'))) {
+      // Verify it's the gmoonc package
+      try {
+        const pkg = JSON.parse(readFileSync(join(path, 'package.json'), 'utf-8'));
+        if (pkg.name === 'gmoonc') {
+          return path;
+        }
+      } catch {}
+    }
   }
+
+  // Last resort fallback
+  return join(process.cwd(), 'node_modules', 'gmoonc');
 }
 
 const PACKAGE_ROOT = getPackageRoot();
@@ -93,6 +136,23 @@ export async function seedSupabase(options: SupabaseSeedOptions): Promise<{ succ
     const projectSqlDir = join(gmooncDir, 'supabase', 'sql');
     const packageSqlDir = join(PACKAGE_ROOT, 'assets', 'supabase');
 
+    // Validate that package SQL files exist
+    const missingFiles: string[] = [];
+    for (const sqlFile of sqlFiles) {
+      const packagePath = join(packageSqlDir, sqlFile.name);
+      if (!existsSync(packagePath)) {
+        missingFiles.push(sqlFile.name);
+      }
+    }
+
+    if (missingFiles.length > 0) {
+      logError(`SQL files not found in package at: ${packageSqlDir}`);
+      logError(`Missing files: ${missingFiles.join(', ')}`);
+      logError(`Package root resolved to: ${PACKAGE_ROOT}`);
+      logError(`Please ensure SQL files are included in the npm package.`);
+      return { success: false, message: 'SQL files not found in package' };
+    }
+
     // Copy SQL files to project if they don't exist
     if (!existsSync(projectSqlDir)) {
       ensureDirectoryExists(join(projectSqlDir, 'dummy'));
@@ -106,6 +166,9 @@ export async function seedSupabase(options: SupabaseSeedOptions): Promise<{ succ
           const content = readFileSync(packagePath, 'utf-8');
           writeFileSync(projectPath, content, 'utf-8');
           logSuccess(`Copied ${sqlFile.name} to src/gmoonc/supabase/sql/`);
+        } else {
+          logError(`Failed to copy ${sqlFile.name} - file not found at ${packagePath}`);
+          return { success: false, message: `SQL file not found: ${sqlFile.name}` };
         }
       }
     }
@@ -134,6 +197,9 @@ export async function seedSupabase(options: SupabaseSeedOptions): Promise<{ succ
       
       if (!existsSync(sqlPath)) {
         logError(`SQL file not found: ${sqlFile.name}`);
+        logError(`   Searched in project: ${join(projectSqlDir, sqlFile.name)}`);
+        logError(`   Searched in package: ${join(packageSqlDir, sqlFile.name)}`);
+        logError(`   Package root: ${PACKAGE_ROOT}`);
         await client.end();
         return { success: false, message: `SQL file not found: ${sqlFile.name}` };
       }
