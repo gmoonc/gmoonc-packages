@@ -9,13 +9,14 @@ import { patchEntryCss } from './lib/patchEntryCss.js';
 import { patchBrowserRouter } from './lib/patchBrowserRouter.js';
 import { logInfo, logSuccess, logError, logWarning } from './lib/logger.js';
 import { ensureDirectoryExists } from './lib/fs.js';
+import { setupSupabase } from './lib/supabaseSetup.js';
 
 const program = new Command();
 
 program
   .name('gmoonc')
   .description('Goalmoon Ctrl (gmoonc): Install complete dashboard into your React project')
-  .version('0.0.15')
+  .version('0.0.17')
   .option('--base <path>', 'Base path for dashboard routes', '/app')
   .option('--skip-router-patch', 'Skip automatic router integration (only copy files and inject CSS)')
   .option('--dry-run', 'Show what would be done without making changes')
@@ -146,6 +147,50 @@ program
       logInfo(`  - Auth: /login, /register, etc.`);
       logInfo('\nYou can now remove gmoonc from package.json if desired.');
       logInfo('The dashboard code is in src/gmoonc/ and is independent.');
+
+    } catch (error: any) {
+      logError(`Error: ${error.message}`);
+      if (error.stack && process.env.DEBUG) {
+        console.error(error.stack);
+      }
+      process.exit(1);
+    }
+  });
+
+// Supabase subcommand
+program
+  .command('supabase')
+  .description('Setup Supabase integration (Auth + RBAC)')
+  .option('--vite', 'Setup for Vite projects')
+  .action(async (options) => {
+    try {
+      logInfo('🚀 Starting Supabase integration setup...');
+
+      const projectDir = cwd();
+      const dryRun = false; // No dry-run for supabase command
+
+      // Validate platform flag
+      if (!options.vite) {
+        logError('Missing platform flag. Use: gmoonc supabase --vite (Next will be added later).');
+        process.exit(1);
+      }
+
+      // Detect project
+      logInfo('🔍 Detecting React project...');
+      const project = detectProject(projectDir);
+      logSuccess(`Package manager: ${project.packageManager}`);
+
+      // Setup Supabase
+      const result = setupSupabase({
+        project,
+        projectDir,
+        platform: 'vite',
+        dryRun
+      });
+
+      if (!result.success) {
+        process.exit(1);
+      }
 
     } catch (error: any) {
       logError(`Error: ${error.message}`);

@@ -63,6 +63,14 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.17
+- Feature: New `supabase --vite` command to setup Supabase integration
+- Feature: Supabase Auth + RBAC integration with session provider
+- Feature: Automatic installation of @supabase/supabase-js dependency
+- Feature: Generated Supabase client, env validation, and RBAC helpers
+- Feature: Automatic patching of existing code to use Supabase provider
+- Feature: .env.example creation/update with Supabase variables
+
 ### 0.0.16
 - Fix: Removed "farm" references from message forms - changed "Company/Farm" to "Company" throughout
 - Fix: Updated field name from `empresa_fazenda`/`company_farm` to `company` in all message-related components
