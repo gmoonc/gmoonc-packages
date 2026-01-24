@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, Link, Navigate } from 'react-router-dom';
 import { GmooncShell } from '../ui/shell';
 import { defaultConfig } from '../config/defaultConfig';
 import { GMooncSessionProvider, useGMooncSession } from '../session/GMooncSessionContext';
@@ -9,7 +9,7 @@ import logoUrl from '../assets/gmoonc-logo.png';
 function GMooncAppLayoutInner() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { roles, logout } = useGMooncSession();
+  const { roles, logout, isLoading, isAuthenticated } = useGMooncSession();
 
   // Determine basePath from current location
   // If path is /app/..., basePath is /app
@@ -46,6 +46,29 @@ function GMooncAppLayoutInner() {
     const normalizedBasePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
     navigate(normalizedBasePath);
   }, [navigate, getBasePath]);
+
+  // Route protection: redirect to login if not authenticated
+  if (!isLoading && !isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="gmoonc-root">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          fontSize: 'var(--gmoonc-font-size-base, 16px)',
+          color: 'var(--gmoonc-color-text, #333)'
+        }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="gmoonc-root">

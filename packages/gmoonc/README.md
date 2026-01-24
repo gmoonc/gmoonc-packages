@@ -63,6 +63,15 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.18
+- Fix: env.ts no longer throws when .env is missing - only logs warning
+- Fix: client.ts import corrected - hasSupabaseEnv imported from env.ts
+- Fix: GMooncSupabaseSessionProvider imports corrected - hasSupabaseEnv from env.ts
+- Fix: createMissingEnvClient improved - more robust mock client
+- Fix: GMooncAppLayout route protection added - redirects to /login when not authenticated
+- Fix: All imports in generated files now without .js suffix
+- Fix: client.ts syntax error fixed - removed extra closing brace
+
 ### 0.0.17
 - Feature: New `supabase --vite` command to setup Supabase integration
 - Feature: Supabase Auth + RBAC integration with session provider

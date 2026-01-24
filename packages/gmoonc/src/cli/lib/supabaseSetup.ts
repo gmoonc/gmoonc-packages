@@ -136,30 +136,35 @@ function generateEnvFile(projectDir: string, supabaseDir: string, platform: 'vit
  * Supabase environment variables for Vite
  * 
  * This file reads environment variables from import.meta.env (Vite)
- * and validates their presence.
+ * and validates their presence. Never throws - only logs warnings.
  */
 
 const supabaseUrlValue = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKeyValue = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const hasSupabaseEnv = Boolean(supabaseUrlValue?.trim() && supabaseAnonKeyValue?.trim());
+// Safe trim with fallback to empty string
+const url = typeof supabaseUrlValue === 'string' ? supabaseUrlValue.trim() : '';
+const anonKey = typeof supabaseAnonKeyValue === 'string' ? supabaseAnonKeyValue.trim() : '';
 
-if (!hasSupabaseEnv) {
+export const supabaseUrl = url;
+export const supabaseAnonKey = anonKey;
+export const hasSupabaseEnv = Boolean(url && anonKey);
+
+// Log warning once if env vars are missing (only in browser, only in dev)
+if (!hasSupabaseEnv && typeof window !== 'undefined' && import.meta.env.DEV) {
   const missingVars: string[] = [];
-  if (!supabaseUrlValue?.trim()) missingVars.push('VITE_SUPABASE_URL');
-  if (!supabaseAnonKeyValue?.trim()) missingVars.push('VITE_SUPABASE_ANON_KEY');
+  if (!url) missingVars.push('VITE_SUPABASE_URL');
+  if (!anonKey) missingVars.push('VITE_SUPABASE_ANON_KEY');
   
-  const errorMessage = \`Missing Supabase environment variables: \${missingVars.join(', ')}.\\n\\nPlease:\\n1. Copy .env.example to .env\\n2. Fill VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY\\n3. Restart dev server\`;
-  
-  if (typeof window !== 'undefined') {
-    console.error('❌', errorMessage);
-  }
-  
-  throw new Error(errorMessage);
+  console.warn(
+    \`⚠️ Supabase environment variables missing: \${missingVars.join(', ')}.\\n\` +
+    \`Please:\\n\` +
+    \`1. Copy .env.example to .env\\n\` +
+    \`2. Fill VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY\\n\` +
+    \`3. Restart dev server\\n\` +
+    \`The app will continue without authentication until configured.\`
+  );
 }
-
-export const supabaseUrl = supabaseUrlValue!;
-export const supabaseAnonKey = supabaseAnonKeyValue!;
 `;
 
   writeFileSafe(envFilePath, content);
@@ -169,7 +174,7 @@ export const supabaseAnonKey = supabaseAnonKeyValue!;
 function generateClientFile(projectDir: string, supabaseDir: string): void {
   const clientFilePath = join(supabaseDir, 'client.ts');
   const content = `import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { supabaseUrl, supabaseAnonKey, hasSupabaseEnv } from './env.js';
+import { supabaseUrl, supabaseAnonKey, hasSupabaseEnv } from './env';
 
 // Database types (minimal - extend as needed)
 export interface Database {
@@ -469,37 +474,58 @@ export interface Database {
 // Singleton pattern to avoid multiple instances
 let supabaseInstance: SupabaseClient<Database> | null = null;
 
-const createMissingEnvClient = () => {
+let warningLogged = false;
+
+const createMissingEnvClient = (): SupabaseClient<Database> => {
   const missingEnvMessage = 'Supabase environment variables are missing or empty.';
 
+  // Log warning once
+  if (!warningLogged && typeof window !== 'undefined') {
+    console.warn('⚠️ Supabase env not configured. Authentication features will not work.');
+    warningLogged = true;
+  }
+
   const notConfigured = () => Promise.reject(new Error(missingEnvMessage));
+  const emptyResult = () => Promise.resolve({ data: null, error: new Error(missingEnvMessage) });
+  const emptyArray = () => Promise.resolve({ data: [], error: new Error(missingEnvMessage) });
 
   return {
     auth: {
-      getSession: async () => ({ data: { session: null }, error: new Error(missingEnvMessage) }),
+      getSession: async () => ({ data: { session: null }, error: null }),
       signInWithPassword: notConfigured,
       signUp: notConfigured,
-      signOut: notConfigured,
+      signOut: async () => ({ error: null }),
       resend: notConfigured,
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      onAuthStateChange: () => ({ 
+        data: { subscription: { unsubscribe: () => {} } },
+        error: null
+      }),
       startAutoRefresh: () => Promise.resolve(),
       stopAutoRefresh: () => {},
     },
-      from: () => ({
-        select: () => notConfigured(),
-        eq: () => ({ single: () => notConfigured() }),
+    from: (table: string) => ({
+      select: () => ({
+        eq: () => ({
+          single: () => emptyResult(),
+          maybeSingle: () => emptyResult(),
+        }),
+        order: () => ({
+          eq: () => emptyArray(),
+        }),
       }),
-    } as unknown as SupabaseClient<Database>;
-  };
+      insert: () => notConfigured(),
+      update: () => notConfigured(),
+      delete: () => notConfigured(),
+      upsert: () => notConfigured(),
+    }),
+    rpc: () => Promise.resolve({ data: null, error: new Error(missingEnvMessage) }),
+  } as unknown as SupabaseClient<Database>;
 };
 
 export const supabase = (() => {
   if (supabaseInstance) return supabaseInstance;
 
   if (!hasSupabaseEnv) {
-    if (typeof window !== 'undefined' && import.meta.env.DEV) {
-      console.warn('⚠️ Supabase env vars missing. App will continue without authentication.');
-    }
     supabaseInstance = createMissingEnvClient();
     return supabaseInstance;
   }
@@ -549,7 +575,8 @@ function generateSessionProvider(projectDir: string, supabaseDir: string): void 
   const content = `import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
-import { supabase, hasSupabaseEnv } from '../client.js';
+import { supabase } from '../client';
+import { hasSupabaseEnv } from '../env';
 
 export interface GMooncUser {
   id: string;
@@ -774,8 +801,8 @@ export function useGMooncSession(): GMooncSessionContextType {
 function generateRbacHelpers(projectDir: string, supabaseDir: string): void {
   // Generate getMyProfile.ts
   const getMyProfilePath = join(supabaseDir, 'rbac/getMyProfile.ts');
-  const getMyProfileContent = `import { supabase } from '../client.js';
-import type { Database } from '../client.js';
+  const getMyProfileContent = `import { supabase } from '../client';
+import type { Database } from '../client';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -815,7 +842,7 @@ export async function getMyProfile(): Promise<Profile | null> {
 
   // Generate hasPermission.ts
   const hasPermissionPath = join(supabaseDir, 'rbac/hasPermission.ts');
-  const hasPermissionContent = `import { supabase } from '../client.js';
+  const hasPermissionContent = `import { supabase } from '../client';
 
 /**
  * Check if the current user has a specific permission
@@ -907,7 +934,7 @@ export function hasPermissionSync(
 
   // Generate getUserPermissions.ts
   const getUserPermissionsPath = join(supabaseDir, 'rbac/getUserPermissions.ts');
-  const getUserPermissionsContent = `import { supabase } from '../client.js';
+  const getUserPermissionsContent = `import { supabase } from '../client';
 
 export interface UserPermission {
   module_name: string;
@@ -954,10 +981,10 @@ export async function getUserPermissions(): Promise<UserPermission[]> {
 
   // Generate index.ts for rbac
   const rbacIndexPath = join(supabaseDir, 'rbac/index.ts');
-  const rbacIndexContent = `export { getMyProfile } from './getMyProfile.js';
-export { hasPermission, hasPermissionSync } from './hasPermission.js';
-export { getUserPermissions } from './getUserPermissions.js';
-export type { UserPermission } from './getUserPermissions.js';
+  const rbacIndexContent = `export { getMyProfile } from './getMyProfile';
+export { hasPermission, hasPermissionSync } from './hasPermission';
+export { getUserPermissions } from './getUserPermissions';
+export type { UserPermission } from './getUserPermissions';
 `;
 
   writeFileSafe(rbacIndexPath, rbacIndexContent);
@@ -1007,7 +1034,7 @@ function patchExistingCode(projectDir: string, gmooncDir: string): void {
     logSuccess('Patched router/createGmooncRoutes.tsx to use GMooncSupabaseSessionProvider');
   }
 
-  // Patch GMooncAppLayout.tsx to use GMooncSupabaseSessionProvider
+  // Patch GMooncAppLayout.tsx to use GMooncSupabaseSessionProvider and add route protection
   const layoutPath = join(gmooncDir, 'layout/GMooncAppLayout.tsx');
   if (existsSync(layoutPath)) {
     let content = readFileSync(layoutPath, 'utf-8');
@@ -1021,14 +1048,67 @@ function patchExistingCode(projectDir: string, gmooncDir: string): void {
     // Also handle if only GMooncSessionProvider is imported
     content = content.replace(
       /import\s+{\s*GMooncSessionProvider[^}]*}\s+from\s+['"][^'"]*session\/GMooncSessionContext['"]/g,
-      "import { GMooncSupabaseSessionProvider } from '../supabase/auth/GMooncSupabaseSessionProvider'"
+      "import { GMooncSupabaseSessionProvider, useGMooncSession } from '../supabase/auth/GMooncSupabaseSessionProvider'"
     );
+    
+    // Add Navigate import if not present
+    if (!content.includes("from 'react-router-dom'") || !content.includes('Navigate')) {
+      content = content.replace(
+        /import\s+{\s*([^}]*)\s*}\s+from\s+['"]react-router-dom['"]/,
+        (match, imports) => {
+          if (!imports.includes('Navigate')) {
+            return `import { ${imports}, Navigate } from 'react-router-dom'`;
+          }
+          return match;
+        }
+      );
+    }
     
     // Replace usage
     content = content.replace(/GMooncSessionProvider/g, 'GMooncSupabaseSessionProvider');
     
+    // Add route protection if not already present
+    if (!content.includes('!isLoading && !isAuthenticated')) {
+      // Find the line with const { roles, logout } = useGMooncSession();
+      content = content.replace(
+        /const\s+{\s*roles,\s*logout\s*}\s+=\s+useGMooncSession\(\);/,
+        "const { roles, logout, isLoading, isAuthenticated } = useGMooncSession();"
+      );
+      
+      // Add protection before return statement in GMooncAppLayoutInner
+      content = content.replace(
+        /(\s+}, \[navigate, getBasePath\]\);)\s+(\s+return\s+\()/,
+        `$1
+
+  // Route protection: redirect to login if not authenticated
+  if (!isLoading && !isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="gmoonc-root">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          fontSize: 'var(--gmoonc-font-size-base, 16px)',
+          color: 'var(--gmoonc-color-text, #333)'
+        }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+$2`
+      );
+    }
+    
     writeFileSafe(layoutPath, content);
-    logSuccess('Patched layout/GMooncAppLayout.tsx to use GMooncSupabaseSessionProvider');
+    logSuccess('Patched layout/GMooncAppLayout.tsx to use GMooncSupabaseSessionProvider and add route protection');
   }
 
   // Note: GMooncLoginPage and GMooncLogoutPage use useGMooncSession hook
