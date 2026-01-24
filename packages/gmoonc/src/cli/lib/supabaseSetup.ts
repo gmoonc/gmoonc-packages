@@ -1051,27 +1051,6 @@ function patchExistingCode(projectDir: string, gmooncDir: string): void {
       "import { GMooncSupabaseSessionProvider, useGMooncSession } from '../supabase/auth/GMooncSupabaseSessionProvider'"
     );
     
-    // Add Navigate import if not present (check both single and double quotes)
-    // Check if Navigate is used in the code but not imported
-    const usesNavigate = /<Navigate\s+to=/.test(content);
-    const hasNavigateImport = /import\s+{[^}]*Navigate[^}]*}\s+from\s+['"]react-router-dom['"]/.test(content);
-    
-    if (usesNavigate && !hasNavigateImport) {
-      // Find the react-router-dom import and add Navigate
-      content = content.replace(
-        /import\s+{\s*([^}]*)\s*}\s+from\s+['"]react-router-dom['"]/,
-        (match, imports) => {
-          // Check if Navigate is already in the imports
-          if (/\bNavigate\b/.test(imports)) {
-            return match; // Already has Navigate
-          }
-          // Remove trailing comma if present, then add Navigate
-          const cleanImports = imports.trim().replace(/,\s*$/, '');
-          return `import { ${cleanImports}, Navigate } from 'react-router-dom'`;
-        }
-      );
-    }
-    
     // Replace usage
     content = content.replace(/GMooncSessionProvider/g, 'GMooncSupabaseSessionProvider');
     
