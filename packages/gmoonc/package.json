@@ -1,6 +1,6 @@
 {
   "name": "gmoonc",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "Goalmoon Ctrl (gmoonc): Complete dashboard installer for React projects",
   "license": "MIT",
   "homepage": "https://gmoonc.com",
@@ -33,6 +33,7 @@
     "postinstall": "node scripts/block-global-install.cjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
     "commander": "^12.0.0",
     "dotenv": "^16.4.5",
     "pg": "^8.11.3"

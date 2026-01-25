@@ -997,6 +997,10 @@ function updateEnvExample(projectDir: string): void {
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
 
+# Supabase Service Role Key (for admin operations - server-only, no VITE_ prefix)
+# Get from: Supabase Dashboard → Settings → API → service_role key
+SUPABASE_SERVICE_ROLE_KEY=
+
 # Supabase Database Connection (Server-only, for seeding)
 # Get this from Supabase Dashboard → Settings → Database → Connection string (URI)
 SUPABASE_DB_URL=

@@ -17,7 +17,7 @@ const program = new Command();
 program
   .name('gmoonc')
   .description('Goalmoon Ctrl (gmoonc): Install complete dashboard into your React project')
-  .version('0.0.23')
+  .version('0.0.24')
   .option('--base <path>', 'Base path for dashboard routes', '/app')
   .option('--skip-router-patch', 'Skip automatic router integration (only copy files and inject CSS)')
   .option('--dry-run', 'Show what would be done without making changes')
@@ -236,6 +236,81 @@ program
       logInfo('  - Functions and triggers');
       logInfo('  - Row Level Security (RLS) policies');
       logInfo('  - Initial seed data (Apollo user)');
+
+    } catch (error: any) {
+      logError(`Error: ${error.message}`);
+      if (error.stack && process.env.DEBUG) {
+        console.error(error.stack);
+      }
+      process.exit(1);
+    }
+  });
+
+// Supabase add admin subcommand
+program
+  .command('supabase-add-admin')
+  .description('Create or update an admin user in Supabase Auth + RBAC')
+  .option('--email <email>', 'Admin email address')
+  .option('--vite', 'For Vite projects')
+  .action(async (options) => {
+    try {
+      logInfo('👤 Creating admin user...');
+
+      const projectDir = cwd();
+
+      // Validate platform flag
+      if (!options.vite) {
+        logError('Missing platform flag. Use: gmoonc supabase-add-admin --email <email> --vite');
+        process.exit(1);
+      }
+
+      // Get email
+      let email = options.email;
+
+      if (!email) {
+        // Read email interactively
+        const readline = await import('readline');
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout
+        });
+
+        email = await new Promise<string>((resolve) => {
+          rl.question('Qual e-mail do admin? ', (answer) => {
+            rl.close();
+            resolve(answer.trim());
+          });
+        });
+
+        if (!email) {
+          logError('Email is required');
+          process.exit(1);
+        }
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        logError('Invalid email format. Please provide a valid email address.');
+        process.exit(1);
+      }
+
+      // Ensure admin user
+      const { ensureAdminUser, saveAdminCredentials, patchGitignore, printAdminCredentials } = await import('./lib/supabaseAdmin.js');
+      
+      const result = await ensureAdminUser(projectDir, email);
+
+      if (!result.success) {
+        logError(`Failed to create admin user: ${result.error}`);
+        process.exit(1);
+      }
+
+      if (result.email && result.password) {
+        // Save credentials
+        saveAdminCredentials(projectDir, result.email, result.password);
+        patchGitignore(projectDir);
+        printAdminCredentials(result.email, result.password, '/app');
+      }
 
     } catch (error: any) {
       logError(`Error: ${error.message}`);

@@ -283,6 +283,10 @@ export async function seedSupabase(options: SupabaseSeedOptions): Promise<{ succ
     writeFileSync(markerPath, markerContent, 'utf-8');
     logSuccess('Created marker file: .gmoonc/supabase-seed.json');
 
+    // Ensure default admin user after seed
+    const { ensureDefaultAdminAfterSeed } = await import('./supabaseAdmin.js');
+    await ensureDefaultAdminAfterSeed(projectDir, '/app');
+
     return { success: true };
 
   } catch (error: any) {

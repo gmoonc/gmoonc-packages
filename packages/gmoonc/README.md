@@ -101,6 +101,13 @@ The logo is installed at `src/gmoonc/assets/gmoonc-logo.png`. You can replace it
 
 ## Changelog
 
+### 0.0.24
+- **New:** `supabase-add-admin --email <email> --vite` command to create admin users
+- **Enhanced:** `supabase-seed --vite` now automatically creates default admin user (`neil@goalmoon.com`)
+- **New:** Admin credentials are saved to `.gmoonc/admin-credentials.json` (auto-added to `.gitignore`)
+- **New:** Strong password generation (20 characters) for admin users
+- **New:** Automatic RBAC linking (administrator role) for created admin users
+
 ### 0.0.23
 - Fix: Improved package root detection for SQL files in supabase-seed command
 - Fix: Added validation to check SQL files exist before attempting to copy
