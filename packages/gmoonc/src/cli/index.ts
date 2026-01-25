@@ -295,10 +295,10 @@ program
         process.exit(1);
       }
 
-      // Ensure admin user
+      // Ensure admin user (with updatePasswordIfExists=true to update password if user exists)
       const { ensureAdminUser, saveAdminCredentials, patchGitignore, printAdminCredentials } = await import('./lib/supabaseAdmin.js');
       
-      const result = await ensureAdminUser(projectDir, email);
+      const result = await ensureAdminUser(projectDir, email, undefined, true);
 
       if (!result.success) {
         logError(`Failed to create admin user: ${result.error}`);
@@ -310,6 +310,9 @@ program
         saveAdminCredentials(projectDir, result.email, result.password);
         patchGitignore(projectDir);
         printAdminCredentials(result.email, result.password, '/app');
+      } else if (result.email && !result.password) {
+        // User exists but password wasn't updated (shouldn't happen with updatePasswordIfExists=true, but handle it)
+        logWarning('User exists but password was not updated');
       }
 
     } catch (error: any) {

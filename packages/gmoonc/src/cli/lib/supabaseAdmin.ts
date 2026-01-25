@@ -73,11 +73,16 @@ function getSupabaseAdminClient(projectDir: string): { client: SupabaseClient | 
 
 /**
  * Ensure admin user exists in Supabase Auth and RBAC
+ * @param projectDir - Project directory
+ * @param email - Admin email
+ * @param password - Optional password (auto-generated if not provided)
+ * @param updatePasswordIfExists - If true, update password even if user exists (default: false for seed, true for add-admin)
  */
 export async function ensureAdminUser(
   projectDir: string,
   email: string,
-  password?: string
+  password?: string,
+  updatePasswordIfExists: boolean = false
 ): Promise<{ success: boolean; email?: string; password?: string; error?: string }> {
   const { client, error } = getSupabaseAdminClient(projectDir);
   
@@ -112,22 +117,34 @@ export async function ensureAdminUser(
     let userId: string;
     
     if (existingUser) {
-      // User exists - update password
-      logWarning(`User ${email} already exists in Supabase Auth`);
-      logInfo('Updating password...');
-      
-      const { data: updateData, error: updateError } = await client.auth.admin.updateUserById(
-        existingUser.id,
-        { password: adminPassword }
-      );
-      
-      if (updateError) {
-        logError(`Failed to update password: ${updateError.message}`);
-        return { success: false, error: updateError.message };
-      }
-      
       userId = existingUser.id;
-      logSuccess('Password updated successfully');
+      
+      if (updatePasswordIfExists) {
+        // Update password if explicitly requested (from supabase-add-admin command)
+        logWarning(`User ${email} already exists in Supabase Auth`);
+        logInfo('Updating password...');
+        
+        const { error: updateError } = await client.auth.admin.updateUserById(
+          existingUser.id,
+          { password: adminPassword }
+        );
+        
+        if (updateError) {
+          logError(`Failed to update password: ${updateError.message}`);
+          return { success: false, error: updateError.message };
+        }
+        
+        logSuccess('Password updated successfully');
+        // Continue to ensure profile has admin role
+      } else {
+        // Don't reset password automatically (from seed command)
+        logWarning(`User ${email} already exists in Supabase Auth`);
+        logInfo('Skipping password update (user already exists)');
+        logInfo('To generate a new password, use: npx gmoonc supabase-add-admin --email ' + email + ' --vite');
+        
+        // Return success but without password (user needs to use supabase-add-admin)
+        // Still ensure profile has admin role below
+      }
     } else {
       // Create new user
       logInfo(`Creating admin user: ${email}`);
@@ -200,10 +217,11 @@ export async function ensureAdminUser(
       logInfo('Profile already has administrator role');
     }
     
+    // Return password only if it was generated/updated
     return {
       success: true,
       email,
-      password: adminPassword
+      password: existingUser && !updatePasswordIfExists ? undefined : adminPassword
     };
     
   } catch (error: any) {
@@ -307,15 +325,20 @@ export async function ensureDefaultAdminAfterSeed(
   if (!result.success) {
     logError('Failed to create default admin user');
     logError('You can create an admin manually using:');
-    logError('  npx gmoonc supabase-add-admin --email your@email.com');
+    logError('  npx gmoonc supabase-add-admin --email your@email.com --vite');
     return { success: false };
   }
   
-  // Save credentials
+  // Save credentials only if password was generated (new user)
   if (result.email && result.password) {
     saveAdminCredentials(projectDir, result.email, result.password);
     patchGitignore(projectDir);
     printAdminCredentials(result.email, result.password, basePath);
+  } else if (result.email) {
+    // User already exists - just inform
+    logInfo(`\n✅ Default admin user already exists: ${result.email}`);
+    logInfo('To generate a new password, use:');
+    logInfo(`  npx gmoonc supabase-add-admin --email ${result.email} --vite`);
   }
   
   return { success: true };
